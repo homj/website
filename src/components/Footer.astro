@@ -1,0 +1,19 @@
+---
+const SOCIALS = [
+  ['GitHub', 'https://github.com/homj'],
+  ['X', 'https://twitter.com/homiathome'],
+  ['LinkedIn', 'https://www.linkedin.com/in/johannes-homeier/'],
+];
+---
+<footer class="wrap">
+  <div class="foot">
+    <span class="foot-copy">© 2026 · Regensburg</span>
+    <div class="foot-right">
+      <div class="foot-links">
+        {SOCIALS.map(([label, href]) => (
+          <a href={href} target="_blank" rel="noreferrer">{label}</a>
+        ))}
+      </div>
+    </div>
+  </div>
+</footer>

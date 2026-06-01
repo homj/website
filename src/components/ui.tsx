@@ -58,19 +58,14 @@ export const SOCIALS: [string, string, string][] = [
 
 // ── useTheme ─────────────────────────────────────────────────────────────────
 // Theme preference: 'light' | 'dark' | 'auto' (auto follows the OS). Default 'auto'.
-// State starts at a deterministic default so SSR and the first client render
-// agree (no hydration mismatch); the stored preference is loaded in an effect
-// after mount. Persistence happens on user choice only — never as a render
-// side-effect — so the initial render can't clobber the saved value.
+// MUST be used only inside a `client:only` island — it reads localStorage in the
+// state initializer so the correct icon paints on the first render (no flicker).
+// That is only safe because the island never renders on the server, so there is
+// no SSR markup to mismatch against. Persistence happens on user choice only.
 export function useTheme() {
-  const [theme, setTheme] = React.useState<string>('auto');
-
-  // Load the saved preference once, after hydration.
-  React.useEffect(() => {
-    const stored = localStorage.getItem('jh-theme');
-    if (stored && stored !== theme) setTheme(stored);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const [theme, setTheme] = React.useState<string>(
+    () => (typeof localStorage !== 'undefined' && localStorage.getItem('jh-theme')) || 'auto'
+  );
 
   // Resolve to data-theme on <html> whenever the preference changes.
   React.useEffect(() => {

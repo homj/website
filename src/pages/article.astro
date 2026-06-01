@@ -1,11 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import NavOnly from '../components/NavOnly';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
 ---
 
 <Layout title="Details are the product — Johannes Homeier">
   <div class="site">
-    <NavOnly client:load />
+    <Nav />
     <main>
       <article class="page wrap detail essay measure">
         <a class="backlink" href="/">
@@ -45,17 +46,6 @@ while (annoyed) {
         </p>
       </article>
     </main>
-    <footer class="wrap">
-      <div class="foot">
-        <span class="foot-copy">© 2026 · Regensburg</span>
-        <div class="foot-right">
-          <div class="foot-links">
-            <a href="https://github.com/homj" target="_blank" rel="noreferrer">GitHub</a>
-            <a href="https://twitter.com/homiathome" target="_blank" rel="noreferrer">X</a>
-            <a href="https://www.linkedin.com/in/johannes-homeier/" target="_blank" rel="noreferrer">LinkedIn</a>
-          </div>
-        </div>
-      </div>
-    </footer>
+    <Footer />
   </div>
 </Layout>

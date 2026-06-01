@@ -1,0 +1,13 @@
+---
+import ThemeToggle from './ThemeToggle';
+---
+<header class="wrap">
+  <nav class="nav">
+    <a class="brand" href="/">Johannes Homeier</a>
+    <!-- min-height reserves the 32px toggle slot so the icon hydrating in
+         can't shift the header height -->
+    <div class="nav-links" style="min-height:32px">
+      <ThemeToggle client:only="react" />
+    </div>
+  </nav>
+</header>
