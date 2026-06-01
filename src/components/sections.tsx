@@ -270,14 +270,30 @@ export function Experience() {
 export function Contact() {
   const [note, setNote] = React.useState('');
   const [sent, setSent] = React.useState(false);
+  const [sending, setSending] = React.useState(false);
+  const [error, setError] = React.useState('');
 
-  const submit = (e?: React.FormEvent) => {
+  const submit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!note.trim()) return;
-    const to = ['j.homeier', 'proton.me'].join('@');
-    window.location.href =
-      `mailto:${to}?subject=${encodeURIComponent('Note from your site')}&body=${encodeURIComponent(note.trim())}`;
-    setSent(true);
+    if (!note.trim() || sending) return;
+    setSending(true);
+    setError('');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note: note.trim() }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? 'Something went wrong.');
+      }
+      setSent(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong.');
+    } finally {
+      setSending(false);
+    }
   };
 
   const onKey = (e: React.KeyboardEvent) => {
@@ -294,8 +310,11 @@ export function Contact() {
             <label className="note-label" htmlFor="note">Leave me a note</label>
             <textarea
               id="note" className="note-field" rows={3} value={note}
+              disabled={sending}
               onChange={e => setNote(e.target.value)} onKeyDown={onKey} />
-            <span className="note-hint">Press ⏎ to send</span>
+            <span className="note-hint">
+              {sending ? 'Sending…' : error ? error : 'Press ⏎ to send'}
+            </span>
           </form>
         )}
       </div>
