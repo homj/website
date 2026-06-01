@@ -20,7 +20,7 @@ const { title = 'Johannes Homeier', description = 'Product engineer & tech lead 
   <!-- Apply saved theme before first paint — no flash. Mood is fixed neutral. -->
   <script is:inline>
     (function () {
-      var pref = localStorage.getItem('jh-theme') || 'light';
+      var pref = localStorage.getItem('jh-theme') || 'auto';
       var t = pref === 'auto'
         ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
         : pref;
