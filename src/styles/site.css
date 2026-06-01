@@ -1,0 +1,419 @@
+/* site.css — content + components specific to Johannes Homeier's site.
+   Builds on colors_and_type.css + kit.css. Neutral mood is fixed on <html>;
+   light/dark toggles via data-theme. Variations switch via data-* on <html>. */
+
+/* ---------- display typeface (typeface-pairing toggle) ---------- */
+:root { --font-display: var(--font-sans); }
+:root[data-typeface="grotesk"] { --font-display: "Space Grotesk", var(--font-sans); }
+.brand, h1, h2, h3, .hero-block__mark, .rail-name { font-family: var(--font-display); }
+.brand { font-size: var(--text-lg); }
+
+/* theme toggle — borderless */
+.ctrl-btn, .ctrl-btn:hover { border-color: transparent; }
+
+/* theme dropdown menu */
+.theme-menu { position: relative; }
+.menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 150px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  animation: menuIn var(--dur) var(--ease-out);
+}
+@keyframes menuIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 5px 9px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--fg);
+  cursor: pointer;
+  text-align: left;
+  transition: background-color var(--dur-fast) var(--ease);
+}
+.menu-item:hover { background: var(--bg-subtle); }
+.menu-item svg { color: var(--fg-muted); flex: none; }
+.menu-item.is-active svg:first-child { color: var(--fg); }
+
+/* ---------- background dot grid (toggleable, scrolls with content) ---------- */
+:root { --grid-dot: rgba(111, 162, 143, 0.18); }
+:root[data-theme="dark"] { --grid-dot: rgba(140, 185, 168, 0.10); }
+.site { position: relative; z-index: 1; }
+:root[data-bggrid="on"] .site::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(circle, var(--grid-dot) 1px, transparent 1.6px);
+  background-size: 22px 22px;
+  background-position: -11px -11px;
+}
+
+/* ---------- the one expressive element: the gradient eye-catcher ----------
+   A soft, blurred wash. Palette is curated (not the procedural chips). */
+:root {                              /* blush — matches the reference */
+  --wash-1: #F8C9E2;
+  --wash-2: #E64A8E;
+  --wash-3: #F4C6A2;
+  --wash-4: #F3B4D2;
+}
+:root[data-palette="iris"] {         /* on-palette neutral grad tokens */
+  --wash-1: #8E84F0;
+  --wash-2: #4F8DF2;
+  --wash-3: #D173C0;
+  --wash-4: #6FC6D2;
+}
+:root[data-palette="mono"] {         /* quiet greys — most restrained */
+  --wash-1: #D7D7DC;
+  --wash-2: #A9A9B2;
+  --wash-3: #C4C4CC;
+  --wash-4: #BcBcC4;
+}
+
+.wash {
+  position: absolute;
+  inset: -26%;
+  background:
+    radial-gradient(42% 62% at 22% 52%, var(--wash-1), transparent 70%),
+    radial-gradient(40% 66% at 48% 60%, var(--wash-2), transparent 64%),
+    radial-gradient(46% 74% at 78% 44%, var(--wash-3), transparent 70%),
+    radial-gradient(54% 80% at 92% 62%, var(--wash-4), transparent 72%);
+  filter: blur(46px) saturate(1.04);
+  animation: washDrift 22s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes washDrift {
+  from { transform: translate3d(-2.2%, 0, 0) scale(1.03); }
+  to   { transform: translate3d(2.4%, 1.4%, 0) scale(1.09); }
+}
+/* edge fade — lightens toward the page color so the band sits softly inset */
+.wash-edge {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(128% 150% at 50% 50%,
+              transparent 36%,
+              color-mix(in srgb, var(--bg) 78%, transparent) 100%);
+}
+:root[data-theme="dark"] .wash { filter: blur(46px) saturate(0.95); opacity: 0.78; }
+
+/* dots — interactive monochrome field (see DotField) */
+.hero-dots {
+  width: 100%;
+  height: clamp(120px, 18vw, 176px);
+  margin-bottom: var(--space-7);
+}
+.hero-dots canvas { display: block; width: 100%; height: 100%; }
+
+/* whitespace — intentional negative space as the eye-catcher */
+.hero-space { height: clamp(40px, 7vw, 88px); margin-bottom: var(--space-6); }
+
+/* statement — a typographic hero; the brand belief set large */
+.hero-statement {
+  margin: var(--space-2) 0 var(--space-7);
+}
+.hero-statement p {
+  margin: 0;
+  max-width: 22ch;
+  font-family: var(--font-display);
+  font-weight: var(--weight-semi);
+  font-size: clamp(2rem, 6vw, var(--text-2xl));
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  text-wrap: balance;
+}
+
+/* band — the reference shape: wide, short, big radius */
+.hero-band {
+  position: relative;
+  width: 100%;
+  height: clamp(66px, 10.5vw, 106px);
+  border-radius: clamp(20px, 3.4vw, 36px);
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--bg);
+  margin-bottom: var(--space-7);
+}
+
+/* block — a taller hero that carries the stacked wordmark */
+.hero-block {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  max-height: 420px;
+  border-radius: clamp(20px, 3vw, 28px);
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--bg);
+  margin-bottom: var(--space-7);
+}
+.hero-block .wash { filter: blur(54px) saturate(1.08); }
+.hero-block__mark {
+  position: absolute;
+  z-index: 2;
+  left: clamp(20px, 4vw, 40px);
+  bottom: clamp(18px, 3vw, 34px);
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  font-weight: var(--weight-semi);
+  letter-spacing: -0.042em;
+  line-height: 0.9;
+  font-size: clamp(40px, 8.4vw, 88px);
+  text-shadow: 0 2px 34px rgba(0, 0, 0, 0.22);
+}
+
+/* small wash used on detail pages */
+.hero-strip {
+  position: relative;
+  width: 100%;
+  height: clamp(96px, 14vw, 150px);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--bg);
+  margin-bottom: var(--space-6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wash { animation: none; }
+}
+
+/* ---------- intro / lead ---------- */
+.intro { margin-bottom: var(--space-6); }
+.intro .lead { margin-bottom: var(--space-4); }
+.intro .lead:last-of-type { margin-bottom: 0; }
+.signature {
+  margin-top: var(--space-6);
+  color: var(--fg-faint);
+  font-size: calc(var(--text-md) * 1.5);
+  line-height: 1.5;
+  max-width: var(--measure);
+}
+.signature .kana {
+  color: var(--fg);
+}
+
+/* ---------- section headings ---------- */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin: 0 0 var(--space-3);
+}
+.kick {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: var(--weight-semi);
+  letter-spacing: var(--tracking-tight);
+  color: var(--fg);
+  margin: 0;
+}
+
+/* ---------- experience (kit Work-style rows + sliding highlight) ----------
+   NOTE: .exp must stay static (no position) so each .rrow's offsetParent
+   resolves to .rows — RowList measures row.offsetTop against that container. */
+.exp { position: static; }
+button.rrow.exp-head {
+  border: none;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+  width: 100%;
+}
+.rrow-title { letter-spacing: -0.01em; }
+.exp-co { color: var(--fg-muted); font-weight: var(--weight-normal); }
+.exp-chev {
+  display: inline-flex;
+  flex: none;
+  color: var(--fg-faint);
+  transform: rotate(90deg);
+  transform-origin: 50% 50%;
+  transition: transform var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.exp.open .exp-chev { transform: rotate(-90deg); color: var(--fg-muted); }
+.exp-body {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--dur-slow) var(--ease);
+}
+.exp.open .exp-body { grid-template-rows: 1fr; }
+.exp-body > .exp-inner { overflow: hidden; }
+/* align the description under the row title */
+.exp-body p {
+  margin: var(--space-2) 0 var(--space-4);
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+  color: var(--fg-muted);
+  font-size: var(--text-sm);
+  max-width: var(--measure);
+}
+.exp-more {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: var(--text-sm);
+  margin: 0 0 var(--space-4) var(--space-4);
+  text-decoration-color: var(--border-strong);
+}
+.exp-more svg { transition: transform var(--dur) var(--ease); }
+.exp-more:hover svg { transform: translateX(2px); }
+
+/* all-open variant */
+:root[data-experience="open"] .exp-body { grid-template-rows: 1fr; }
+:root[data-experience="open"] .exp-chev { display: none; }
+:root[data-experience="open"] button.rrow.exp-head { cursor: default; }
+
+/* ---------- projects ---------- */
+button.proj-row { border: none; background: transparent; font: inherit; cursor: pointer; width: 100%; text-align: left; }
+.proj-row { color: var(--fg); text-decoration: none; }
+.proj-row--static { cursor: default; }
+.proj-row .rrow-desc { margin-top: 1px; }
+
+/* ---------- personal ---------- */
+.personal-text { font-size: var(--text-base); color: var(--fg-muted); line-height: var(--leading-normal); max-width: var(--measure); }
+.personal-text strong { color: var(--fg); font-weight: var(--weight-semi); }
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 10px 1px 8px;
+  margin: 0 2px;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--pill) 16%, var(--bg));
+  border: 1.5px solid color-mix(in srgb, var(--pill) 44%, transparent);
+  color: color-mix(in srgb, var(--pill) 52%, var(--fg));
+  font-size: 0.84em;
+  font-weight: var(--weight-semi);
+  white-space: nowrap;
+  line-height: 1.4;
+  vertical-align: baseline;
+}
+.pill svg { color: var(--pill); flex: none; }
+.pill-flip { display: inline-grid; justify-items: center; }
+.pill-flip > .pill-word {
+  grid-area: 1 / 1;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(0.5em);
+  transition: opacity 0.4s var(--ease), transform 0.4s var(--ease);
+}
+.pill-flip > .pill-word.is-on { opacity: 1; transform: none; }
+.pill-jp {
+  background: #ffffff;
+  border-color: transparent;
+  color: #1A1A1A;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.10), inset 0 0 0 1px rgba(0,0,0,0.05);
+  padding-left: 7px;
+}
+.jp-dot { width: 9px; height: 9px; border-radius: 50%; background: #BC002D; flex: none; }
+.book-cover { display: inline-flex; }
+.book-cover svg { display: block; border-radius: 2.5px; box-shadow: 0 1px 3px rgba(0,0,0,0.28); }
+
+/* translucent row hover highlight with a slight frost (grid blurs behind it) */
+.rows-hl {
+  background: color-mix(in srgb, var(--fg) 5%, transparent);
+  backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(1px);
+}
+.rows-hl.is-pressed { background: color-mix(in srgb, var(--fg) 9%, transparent); }
+
+/* ---------- now ---------- */
+.now p { color: var(--fg); }
+.now .now-foot { font-family: var(--font-sans); font-size: var(--text-sm); color: var(--fg-faint); margin: 0; }
+
+/* ---------- detail pages ---------- */
+.detail .backlink { margin-bottom: var(--space-6); }
+.detail .meta { display: block; margin-bottom: var(--space-3); font-family: var(--font-sans); }
+/* detail content spans the full container; prose isn't capped to the reading measure */
+.detail-body { width: 100%; }
+.detail-body p { max-width: none; }
+.detail h1 { margin-bottom: var(--space-5); font-size: var(--text-lg); }
+.detail-head { display: flex; align-items: baseline; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-5); }
+.detail-head h1 { margin-bottom: 0; }
+.detail-years { font-size: var(--text-sm); color: var(--fg-muted); font-variant-numeric: tabular-nums; }
+.detail .lead { font-size: var(--text-md); color: var(--fg); margin-bottom: var(--space-6); }
+/* stat bar — labelled values above the body text */
+.statbar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: var(--space-5);
+  margin: var(--space-7) 0 0;
+}
+.stat { display: flex; flex-direction: column; gap: 4px; }
+.stat-label { font-size: var(--text-xs); color: var(--fg-muted); }
+.stat-value {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semi);
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ---------- contact / leave a note ---------- */
+.note-form { display: flex; flex-direction: column; max-width: calc(var(--measure) * 0.7); }
+.note-label { display: block; color: var(--fg); margin-bottom: var(--space-3); font-size: var(--text-base); }
+.note-field, .note-name {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  color: var(--fg);
+  background: var(--bg-subtle);
+  border: none;
+  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-4);
+  width: 100%;
+  transition: box-shadow var(--dur) var(--ease), background-color var(--dur) var(--ease);
+}
+.note-field { resize: vertical; min-height: 84px; line-height: var(--leading-snug); display: block; }
+.note-field::placeholder, .note-name::placeholder { color: var(--fg-faint); }
+.note-field:focus, .note-name:focus {
+  outline: none;
+  background: var(--bg-inset);
+  box-shadow: inset 0 0 0 1.5px var(--border-strong);
+}
+.note-hint { display: block; margin-top: var(--space-2); font-size: var(--text-sm); color: var(--fg-faint); }
+.contact-done { color: var(--fg); font-size: var(--text-md); max-width: var(--measure); }
+
+/* ---------- sidebar layout variation ---------- */
+.home-rail { display: none; }
+:root[data-layout="sidebar"] .home-rail { display: block; margin-bottom: var(--space-7); }
+.rail-name { font-size: var(--text-lg); font-weight: var(--weight-semi); letter-spacing: -0.02em; }
+.rail-role { color: var(--fg-muted); margin-top: 2px; }
+.rail-loc { color: var(--fg-faint); font-size: var(--text-sm); font-family: var(--font-mono); margin-top: var(--space-2); }
+.rail-socials { display: flex; gap: var(--space-4); margin-top: var(--space-4); color: var(--fg-muted); }
+.rail-socials a { color: inherit; display: grid; place-items: center; transition: color var(--dur) var(--ease); }
+.rail-socials a:hover { color: var(--fg); }
+
+@media (min-width: 880px) {
+  :root[data-layout="sidebar"] .home {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: var(--space-8);
+    align-items: start;
+  }
+  :root[data-layout="sidebar"] .home-rail {
+    position: sticky;
+    top: var(--space-7);
+    margin-bottom: 0;
+    padding-top: var(--space-1);
+  }
+  /* in sidebar mode, identity moves to the rail — soften the greeting */
+  :root[data-layout="sidebar"] .home-main .intro .lead { font-size: var(--text-base); }
+}

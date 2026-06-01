@@ -1,0 +1,341 @@
+/* ============================================================
+   Johannes Homeier — Design System
+   colors_and_type.css
+
+   The single source of truth for color + type tokens.
+
+   Two switchable axes, both set as attributes on <html>:
+     data-theme = "light" | "dark"
+     data-mood  = "warm"  | "neutral" | "cool"
+
+   Defaults (if no attributes are set) = warm + light.
+   Set both explicitly in production:  <html data-theme="light" data-mood="warm">
+
+   Layers:
+     1. Primitive ramps   (--ink-900, --paper-50, …)  — raw values, per mood/theme
+     2. Semantic tokens   (--bg, --fg, --fg-muted, …) — what you actually use
+     3. Type + space + motion tokens                  — mood/theme independent
+     4. Element defaults  (body, h1, a, code, …)
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1 + 2.  COLOR  —  semantic tokens per mood × theme
+   Accent: NONE by design. Links are ink + underline.
+   ------------------------------------------------------------ */
+
+:root,
+:root[data-mood="warm"] {
+  /* WARM · light — cream paper, warm ink (Flexoki-adjacent, original values) */
+  --bg:          #FBF9F4;   /* page */
+  --bg-subtle:   #F3F0E7;   /* code blocks, hovered rows, inset surfaces */
+  --bg-inset:    #ECE8DC;   /* deepest surface, selected */
+  --fg:          #1B1A16;   /* primary ink */
+  --fg-muted:    #6B6658;   /* dates, metadata, captions, secondary */
+  --fg-faint:    #9A9385;   /* placeholders, disabled, tertiary marks */
+  --border:      #E6E1D4;   /* hairlines */
+  --border-strong:#D6CFBD;  /* dividers that need to read */
+  --selection:   #E4DCC4;   /* ::selection background */
+  --on-fg:       #FBF9F4;   /* text on a solid --fg fill (buttons) */
+}
+
+:root[data-mood="warm"][data-theme="dark"],
+:root[data-theme="dark"] {
+  /* WARM · dark */
+  --bg:          #16140F;
+  --bg-subtle:   #1F1C15;
+  --bg-inset:    #29251C;
+  --fg:          #ECE7DA;
+  --fg-muted:    #A39C8A;
+  --fg-faint:    #6F6857;
+  --border:      #2C2820;
+  --border-strong:#3C3729;
+  --selection:   #3A3424;
+  --on-fg:       #16140F;
+}
+
+:root[data-mood="neutral"] {
+  /* NEUTRAL · light — near-black on near-white, no temperature */
+  --bg:          #FFFFFF;
+  --bg-subtle:   #F5F5F5;
+  --bg-inset:    #EDEDED;
+  --fg:          #16161A;
+  --fg-muted:    #62626A;
+  --fg-faint:    #9A9AA2;
+  --border:      #E6E6E8;
+  --border-strong:#D6D6DA;
+  --selection:   #E2E2E6;
+  --on-fg:       #FFFFFF;
+}
+
+:root[data-mood="neutral"][data-theme="dark"] {
+  /* NEUTRAL · dark */
+  --bg:          #0C0C0E;
+  --bg-subtle:   #161618;
+  --bg-inset:    #202023;
+  --fg:          #F2F2F4;
+  --fg-muted:    #9D9DA5;
+  --fg-faint:    #65656D;
+  --border:      #242427;
+  --border-strong:#33333A;
+  --selection:   #2C2C32;
+  --on-fg:       #0C0C0E;
+}
+
+:root[data-mood="cool"] {
+  /* COOL · light — slate, faintly technical */
+  --bg:          #FBFCFD;
+  --bg-subtle:   #F0F3F5;
+  --bg-inset:    #E6EAEE;
+  --fg:          #14181D;
+  --fg-muted:    #5C636E;
+  --fg-faint:    #939BA6;
+  --border:      #E1E6EB;
+  --border-strong:#CFD6DD;
+  --selection:   #DCE4EC;
+  --on-fg:       #FBFCFD;
+}
+
+:root[data-mood="cool"][data-theme="dark"] {
+  /* COOL · dark */
+  --bg:          #0B0E12;
+  --bg-subtle:   #141820;
+  --bg-inset:    #1D2229;
+  --fg:          #E8ECF2;
+  --fg-muted:    #99A1AD;
+  --fg-faint:    #5F6772;
+  --border:      #222831;
+  --border-strong:#313945;
+  --selection:   #232C38;
+  --on-fg:       #0B0E12;
+}
+
+/* ------------------------------------------------------------
+   3.  TYPE, SPACE, RADII, MOTION  (mood/theme independent)
+   ------------------------------------------------------------ */
+
+:root {
+  /* — Font families —
+     Primary is an honest system sans (the moritz.works register).
+     Typeface-pairing variations swap --font-sans to Space Grotesk
+     or Schibsted Grotesk (loaded via the UI kit / cards).         */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+               "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Geist Mono",
+               Menlo, Consolas, "Liberation Mono", monospace;
+  --font-serif: ui-serif, "Iowan Old Style", "Charter", Georgia, serif;
+
+  /* — Type scale — body sits at 17px; tight, deliberate steps — */
+  --text-xs:    0.8125rem;  /* 13 — micro labels, footnotes        */
+  --text-sm:    0.9375rem;  /* 15 — metadata, captions, nav        */
+  --text-base:  1.0625rem;  /* 17 — body                           */
+  --text-md:    1.1875rem;  /* 19 — lead paragraph                 */
+  --text-lg:    1.5rem;     /* 24 — h3 / small headings            */
+  --text-xl:    2rem;       /* 32 — h2                             */
+  --text-2xl:   2.75rem;    /* 44 — h1 / page title                */
+  --text-3xl:   3.75rem;    /* 60 — display, rarely used           */
+
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semi:   600;
+
+  --leading-tight:  1.15;
+  --leading-snug:   1.35;
+  --leading-normal: 1.65;   /* prose */
+
+  --tracking-tight:  -0.02em;  /* large headings */
+  --tracking-normal:  0;
+  --tracking-wide:    0.06em;  /* uppercased mono labels */
+
+  /* — Measure — comfortable reading column — */
+  --measure: 38rem;          /* ~640px prose width */
+  --measure-wide: 52rem;     /* layout / project lists */
+
+  /* — Spacing (4px base, restrained) — */
+  --space-1: 0.25rem;   /*  4 */
+  --space-2: 0.5rem;    /*  8 */
+  --space-3: 0.75rem;   /* 12 */
+  --space-4: 1rem;      /* 16 */
+  --space-5: 1.5rem;    /* 24 */
+  --space-6: 2rem;      /* 32 */
+  --space-7: 3rem;      /* 48 */
+  --space-8: 4rem;      /* 64 */
+  --space-9: 6rem;      /* 96 */
+
+  /* — Radii — small and quiet — */
+  --radius-sm: 6px;
+  --radius:    10px;
+  --radius-lg: 16px;
+  --radius-full: 999px;
+
+  /* — Elevation — borders do the work; shadows are a whisper — */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow:    0 2px 8px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+
+  /* — Motion — quick, precise, no bounce — */
+  --ease:      cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-out:  cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast:  120ms;
+  --dur:       180ms;
+  --dur-slow:  320ms;
+}
+
+/* ------------------------------------------------------------
+   4.  ELEMENT DEFAULTS
+   Drop this file in and prose/links/headings just work.
+   ------------------------------------------------------------ */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  font-weight: var(--weight-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  /* Theme + mood swap is animated softly for a "nice interaction" */
+  transition: background-color var(--dur-slow) var(--ease),
+              color var(--dur-slow) var(--ease);
+}
+
+::selection { background: var(--selection); }
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0 0 var(--space-4);
+  font-weight: var(--weight-semi);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  text-wrap: balance;
+}
+h1 { font-size: var(--text-2xl); }
+h2 { font-size: var(--text-xl); }
+h3 { font-size: var(--text-lg); letter-spacing: -0.01em; }
+h4 { font-size: var(--text-md); font-weight: var(--weight-medium); letter-spacing: 0; }
+
+p  { margin: 0 0 var(--space-5); max-width: var(--measure); text-wrap: pretty; }
+
+small, .text-sm { font-size: var(--text-sm); }
+
+/* Links — ink only, the underline carries the meaning.
+   Underline sits low and thins; on hover it draws closer + the ink
+   warms toward full. This is the core "interaction" of the system. */
+a {
+  color: var(--fg);
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.18em;
+  transition: text-decoration-color var(--dur) var(--ease),
+              opacity var(--dur) var(--ease);
+}
+a:hover {
+  text-decoration-color: var(--fg);
+}
+a:active { opacity: 0.7; }
+
+/* Metadata / dates / kicker labels — the one mono accent in the system */
+.meta, .kicker, time {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+.kicker {
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  font-size: var(--text-xs);
+}
+
+code, kbd, pre, samp {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+code {
+  background: var(--bg-subtle);
+  padding: 0.1em 0.35em;
+  border-radius: var(--radius-sm);
+}
+pre {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  overflow-x: auto;
+  line-height: var(--leading-snug);
+}
+pre code { background: none; padding: 0; }
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: var(--space-7) 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* ===================================================================
+   GRADIENT PALETTE  ·  the one expressive layer
+   Mood-aware "artsy" accents used ONLY for generated gradient fields
+   (cover-art chips + the home hero wash). Never for borders or text.
+   Listed after the base mood blocks so they win by source order.
+   =================================================================== */
+:root,
+:root[data-mood="warm"] {
+  --grad-1: #E89A4B;  /* amber      */
+  --grad-2: #D9663F;  /* terracotta */
+  --grad-3: #C95F86;  /* rose       */
+  --grad-4: #EBC15C;  /* gold       */
+}
+:root[data-mood="warm"][data-theme="dark"],
+:root[data-theme="dark"] {
+  --grad-1: #F2B05E;
+  --grad-2: #EE7A4E;
+  --grad-3: #E0709B;
+  --grad-4: #F6D070;
+}
+:root[data-mood="neutral"] {
+  --grad-1: #6E63E6;  /* iris       */
+  --grad-2: #4F8DF2;  /* periwinkle */
+  --grad-3: #D173C0;  /* orchid     */
+  --grad-4: #58C0CE;  /* cyan       */
+}
+:root[data-mood="neutral"][data-theme="dark"] {
+  --grad-1: #8B80FF;
+  --grad-2: #6BA0FF;
+  --grad-3: #E08AD2;
+  --grad-4: #6FD6E2;
+}
+:root[data-mood="cool"] {
+  --grad-1: #3E8FCB;  /* azure  */
+  --grad-2: #4F6DE0;  /* indigo */
+  --grad-3: #3FB8A6;  /* teal   */
+  --grad-4: #6FB0E8;  /* sky    */
+}
+:root[data-mood="cool"][data-theme="dark"] {
+  --grad-1: #5BA8E0;
+  --grad-2: #6E86F2;
+  --grad-3: #54CFBA;
+  --grad-4: #88C4F2;
+}
