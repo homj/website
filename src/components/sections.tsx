@@ -276,6 +276,7 @@ export function Contact() {
   const [email, setEmail] = React.useState('');
   const [revealed, setRevealed] = React.useState(false);
   const [captcha, setCaptcha] = React.useState('');
+  const [captchaFailed, setCaptchaFailed] = React.useState(false);
   const [sent, setSent] = React.useState(false);
   const [sending, setSending] = React.useState(false);
   const [error, setError] = React.useState('');
@@ -289,26 +290,43 @@ export function Contact() {
     if (!revealed || !FRC_SITEKEY || !captchaRef.current) return;
     let widget: { destroy(): void } | undefined;
     let cancelled = false;
-    import('@friendlycaptcha/sdk').then(({ FriendlyCaptchaSDK }) => {
-      if (cancelled || !captchaRef.current) return;
-      const sdk = new FriendlyCaptchaSDK();
-      const w = sdk.createWidget({
-        element: captchaRef.current,
-        sitekey: FRC_SITEKEY,
-        startMode: 'auto',
-      });
-      widget = w;
-      w.addEventListener('frc:widget.complete', e => setCaptcha(e.detail.response));
-      w.addEventListener('frc:widget.error', () => setCaptcha(''));
-      w.addEventListener('frc:widget.expire', () => setCaptcha(''));
-    });
+    import('@friendlycaptcha/sdk')
+      .then(({ FriendlyCaptchaSDK }) => {
+        if (cancelled || !captchaRef.current) return;
+        const sdk = new FriendlyCaptchaSDK();
+        const w = sdk.createWidget({
+          element: captchaRef.current,
+          sitekey: FRC_SITEKEY,
+          startMode: 'auto',
+        });
+        widget = w;
+        w.addEventListener('frc:widget.complete', e => { setCaptcha(e.detail.response); setCaptchaFailed(false); });
+        w.addEventListener('frc:widget.error', () => { setCaptcha(''); setCaptchaFailed(true); });
+        w.addEventListener('frc:widget.expire', () => setCaptcha(''));
+      })
+      // The SDK chunk itself failed to load (offline / blocked). Surface it so
+      // the user isn't stuck staring at a "finishing the bot check" message.
+      .catch(() => { if (!cancelled) setCaptchaFailed(true); });
     return () => { cancelled = true; widget?.destroy(); };
   }, [revealed]);
 
+  // Reveal the optional reply-to field (and captcha) below the textarea.
+  const reveal = () => {
+    if (!note.trim()) return;
+    setRevealed(true);
+    requestAnimationFrame(() => emailRef.current?.focus());
+  };
+
   const submit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!note.trim() || sending) return;
-    if (FRC_SITEKEY && !captcha) { setError('Hang on — finishing the bot check.'); return; }
+    const trimmed = note.trim();
+    if (!trimmed || sending) return;
+    if (FRC_SITEKEY && !captcha) {
+      setError(captchaFailed
+        ? 'The bot check couldn’t load. Please reload the page and try again.'
+        : 'Hang on — finishing the bot check…');
+      return;
+    }
     setSending(true);
     setError('');
     try {
@@ -316,7 +334,7 @@ export function Contact() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          note: note.trim(),
+          note: trimmed,
           email: email.trim() || undefined,
           frcCaptchaResponse: captcha || undefined,
         }),
@@ -337,13 +355,8 @@ export function Contact() {
   const onNoteKey = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      if (!note.trim()) return;
-      if (!revealed) {
-        setRevealed(true);
-        requestAnimationFrame(() => emailRef.current?.focus());
-      } else {
-        submit();
-      }
+      if (!revealed) reveal();
+      else submit();
     }
   };
 
@@ -356,8 +369,8 @@ export function Contact() {
     : error
       ? error
       : revealed
-        ? 'Add your email for a reply (optional), then press ⏎ to send'
-        : 'Press ⏎ to continue';
+        ? 'Add your email for a reply (optional), then send'
+        : 'Press ⏎ or Continue';
 
   return (
     <section className="section contact">
@@ -380,7 +393,16 @@ export function Contact() {
                 {FRC_SITEKEY && <div ref={captchaRef} className="note-captcha" />}
               </>
             )}
-            <span className="note-hint">{hint}</span>
+            <div className="note-row">
+              <button
+                type={revealed ? 'submit' : 'button'}
+                className="note-send"
+                disabled={sending || !note.trim()}
+                onClick={revealed ? undefined : reveal}>
+                {revealed ? 'Send' : 'Continue'}
+              </button>
+              <span className="note-hint" aria-live="polite">{hint}</span>
+            </div>
           </form>
         )}
       </div>

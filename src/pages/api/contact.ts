@@ -7,8 +7,18 @@ export const prerender = false;
 // Recipient inbox for contact notes, configured via the environment.
 const TO = import.meta.env.CONTACT_TO ?? ['j.homeier', 'proton.me'].join('@');
 const MAX_LEN = 5000;
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Reject empty domain labels (e.g. `a@b..com`) and require at least one dot.
+const EMAIL_RE = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 const FRC_VERIFY_URL = 'https://global.frcapi.com/api/v2/captcha/siteverify';
+
+// Catch the misconfiguration where the server enforces the captcha but the
+// client never renders it — that combination rejects every submission.
+if (import.meta.env.FRIENDLY_CAPTCHA_API_KEY && !import.meta.env.PUBLIC_FRIENDLY_CAPTCHA_SITEKEY) {
+  console.warn(
+    'FRIENDLY_CAPTCHA_API_KEY is set without PUBLIC_FRIENDLY_CAPTCHA_SITEKEY — ' +
+    'the widget will not render and every contact submission will be rejected.',
+  );
+}
 
 export const POST: APIRoute = async ({ request }) => {
   const apiKey = import.meta.env.RESEND_API_KEY;

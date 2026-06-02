@@ -390,7 +390,21 @@ button.proj-row { border: none; background: transparent; font: inherit; cursor: 
 }
 .note-name { margin-top: var(--space-3); }
 .note-captcha { margin-top: var(--space-3); }
-.note-hint { display: block; margin-top: var(--space-2); font-size: var(--text-sm); color: var(--fg-faint); }
+.note-row { display: flex; align-items: center; gap: var(--space-4); margin-top: var(--space-3); }
+.note-send {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  color: var(--on-fg);
+  background: var(--fg);
+  border: none;
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  transition: opacity var(--dur) var(--ease);
+}
+.note-send:disabled { opacity: 0.45; cursor: not-allowed; }
+.note-send:not(:disabled):hover { opacity: 0.85; }
+.note-hint { font-size: var(--text-sm); color: var(--fg-faint); }
 .contact-done { color: var(--fg); font-size: var(--text-md); max-width: var(--measure); }
 
 /* ---------- sidebar layout variation ---------- */
