@@ -8,6 +8,8 @@ import '@fontsource/space-grotesk/latin-400.css';
 import '@fontsource/space-grotesk/latin-500.css';
 import '@fontsource/space-grotesk/latin-600.css';
 import '@fontsource/space-grotesk/latin-700.css';
+import Analytics from '@vercel/analytics/astro';
+import SpeedInsights from '@vercel/speed-insights/astro';
 
 interface Props {
   title?: string;
@@ -39,5 +41,7 @@ const { title = 'Johannes Homeier', description = 'Product engineer & tech lead 
 </head>
 <body>
   <slot />
+  <Analytics />
+  <SpeedInsights />
 </body>
 </html>
