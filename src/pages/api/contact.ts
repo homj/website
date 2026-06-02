@@ -62,7 +62,7 @@ export const POST: APIRoute = async ({ request }) => {
     // The server enforces the captcha but the client only renders it when the
     // public sitekey is set; without it, every submission below would be rejected.
     if (!env('PUBLIC_FRIENDLY_CAPTCHA_SITEKEY')) {
-      console.warn('FRIENDLY_CAPTCHA_API_KEY is set without PUBLIC_FRIENDLY_CAPTCHA_SITEKEY — the widget will not render and submissions will be rejected.');
+      console.warn('FRIENDLY_CAPTCHA_API_KEY is set without PUBLIC_FRIENDLY_CAPTCHA_SITEKEY - the widget will not render and submissions will be rejected.');
     }
     if (!captchaResponse) {
       return json({ error: 'Captcha verification is required.' }, 400);

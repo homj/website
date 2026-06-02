@@ -324,7 +324,7 @@ export function Contact() {
     if (FRC_SITEKEY && !captcha) {
       setError(captchaFailed
         ? 'The bot check couldn’t load. Please reload the page and try again.'
-        : 'Hang on — finishing the bot check…');
+        : 'Hang on - finishing the bot check…');
       return;
     }
     setSending(true);
