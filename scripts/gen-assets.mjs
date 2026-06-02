@@ -30,13 +30,13 @@ await Promise.all([
 ]);
 
 // ── OG image (1200x630) ──────────────────────────────────────────────────────
-const fontDir = new URL('../node_modules/@fontsource/space-grotesk/files/', import.meta.url);
-const sg = async (w) => readFile(new URL(`space-grotesk-latin-${w}-normal.woff`, fontDir));
+const fontDir = new URL('../node_modules/@fontsource/inter/files/', import.meta.url);
+const inter = async (w) => readFile(new URL(`inter-latin-${w}-normal.woff`, fontDir));
 
 const dots = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630">
   <defs>
-    <pattern id="d" width="26" height="26" patternUnits="userSpaceOnUse">
-      <circle cx="13" cy="13" r="1.9" fill="#6FA28F" fill-opacity="0.55"/>
+    <pattern id="d" width="40" height="40" patternUnits="userSpaceOnUse">
+      <circle cx="20" cy="20" r="2.6" fill="#6FA28F" fill-opacity="0.3"/>
     </pattern>
   </defs>
   <rect width="1200" height="630" fill="#FBFAF8"/>
@@ -47,16 +47,16 @@ const text = (children) => ({ type: 'div', props: children });
 const og = text({
   style: { display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '1200px', height: '630px', padding: '0 90px' },
   children: [
-    text({ style: { fontFamily: 'Space Grotesk', fontWeight: 700, fontSize: '96px', letterSpacing: '-3px', color: '#16161A', lineHeight: 1 }, children: 'Johannes Homeier' }),
-    text({ style: { fontFamily: 'Space Grotesk', fontWeight: 500, fontSize: '42px', color: '#62626A', marginTop: '14px' }, children: 'Product engineer & tech lead' }),
+    text({ style: { fontFamily: 'Inter', fontWeight: 700, fontSize: '96px', letterSpacing: '-2px', color: '#16161A', lineHeight: 1 }, children: 'Johannes Homeier' }),
+    text({ style: { fontFamily: 'Inter', fontWeight: 400, fontSize: '52px', color: '#9A9AA2', marginTop: '16px' }, children: 'Product engineer & tech lead' }),
   ],
 });
 
 const textSvg = await satori(og, {
   width: 1200, height: 630,
   fonts: [
-    { name: 'Space Grotesk', data: await sg(700), weight: 700, style: 'normal' },
-    { name: 'Space Grotesk', data: await sg(500), weight: 500, style: 'normal' },
+    { name: 'Inter', data: await inter(700), weight: 700, style: 'normal' },
+    { name: 'Inter', data: await inter(400), weight: 400, style: 'normal' },
   ],
 });
 
