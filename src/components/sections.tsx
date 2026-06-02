@@ -301,6 +301,12 @@ export function Contact() {
   const [sent, setSent] = React.useState(false);
   const [sending, setSending] = React.useState(false);
   const [error, setError] = React.useState('');
+  // Set when the visitor tries to send before the captcha has resolved, so we
+  // can finish the submission for them once it does.
+  const [pendingSubmit, setPendingSubmit] = React.useState(false);
+
+  const CAPTCHA_WAIT = 'Hang on, finishing the bot check...';
+  const CAPTCHA_FAILED = 'The bot check could not load. Please reload the page and try again.';
 
   const emailRef = React.useRef<HTMLInputElement>(null);
   const captchaRef = React.useRef<HTMLDivElement>(null);
@@ -343,11 +349,15 @@ export function Contact() {
     const trimmed = note.trim();
     if (!trimmed || sending) return;
     if (FRC_SITEKEY && !captcha) {
-      setError(captchaFailed
-        ? 'The bot check couldn’t load. Please reload the page and try again.'
-        : 'Hang on - finishing the bot check…');
+      if (captchaFailed) {
+        setError(CAPTCHA_FAILED);
+      } else {
+        setError(CAPTCHA_WAIT);
+        setPendingSubmit(true); // send automatically once the captcha resolves
+      }
       return;
     }
+    setPendingSubmit(false);
     setSending(true);
     setError('');
     try {
@@ -371,6 +381,21 @@ export function Contact() {
       setSending(false);
     }
   };
+
+  // Resolve a submission the visitor queued while the captcha was still
+  // working: send it once the token arrives, or surface the failure.
+  React.useEffect(() => {
+    if (!pendingSubmit) return;
+    if (captcha) {
+      setPendingSubmit(false);
+      setError('');
+      submit();
+    } else if (captchaFailed) {
+      setPendingSubmit(false);
+      setError(CAPTCHA_FAILED);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [captcha, captchaFailed, pendingSubmit]);
 
   // First Enter reveals the optional reply-to field; a second one sends.
   const onNoteKey = (e: React.KeyboardEvent) => {
