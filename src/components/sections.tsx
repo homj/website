@@ -199,8 +199,8 @@ export function Personal() {
         And between all of it, I finally made Broccoli Casserole again this
         week. One of my partner&rsquo;s favorites.
       </p>
-      <p className="personal-text measure">
-        (I won&rsquo;t brag, but it slapped.)
+      <p className="personal-text personal-aside measure">
+        (I won&rsquo;t brag, but it slapped)
       </p>
     </section>
   );

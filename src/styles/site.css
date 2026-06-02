@@ -306,6 +306,7 @@ button.proj-row { border: none; background: transparent; font: inherit; cursor: 
 /* ---------- personal ---------- */
 .personal-text { font-size: var(--text-base); color: var(--fg-muted); line-height: var(--leading-normal); max-width: var(--measure); }
 .personal-text strong { color: var(--fg); font-weight: var(--weight-semi); }
+.personal-aside { font-size: var(--text-sm); }
 .pill {
   display: inline-flex;
   align-items: center;
