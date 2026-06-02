@@ -180,23 +180,25 @@ export function Personal() {
   return (
     <section className="section">
       <div className="section-head"><p className="kick">Personal</p></div>
+      <p className="section-updated">last updated: June 2026</p>
       <p className="personal-text measure">
-        Oh boy, I can&rsquo;t tell you how excited I am. Only a few more days left&hellip;
+        Life is full at the moment. We&rsquo;re only a few days away from becoming parents for
+        the first time, and I can&rsquo;t tell you how excited I am.
       </p>
       <p className="personal-text measure">
-        Besides that, I&rsquo;m learning <strong>Japanese</strong> right now - I want to go back
-        for my third time in November, first time as a family this time.
-      </p>
-      <p className="personal-text measure">
-        I&rsquo;m also trying to get back into reading. My sister recently gifted me{' '}
+        And I&rsquo;m still thinking back to our trip to Japan last year&hellip; I&rsquo;ve been
+        learning the language for a bit now and hope to go back in November, this time as a
+        family. In the same spirit, my sister recently gifted me{' '}
         <a href="https://www.scorpio-verlag.de/Buecher/579/DerJapanischeGarten.html"
-          target="_blank" rel="noreferrer">Der Japanische Garten</a>,
-        a quiet story about ikigai. It&rsquo;s good to be reading again, even if it&rsquo;s just
-        a small book.
+          target="_blank" rel="noreferrer">Der Japanische Garten</a>, a quiet story about
+        ikigai. It&rsquo;s good to be reading again, even if it&rsquo;s just a small book.
       </p>
       <p className="personal-text measure">
-        And I finally made <strong>Broccoli Casserole</strong> again this week - one of my
-        partner&rsquo;s favorite dishes. I don&rsquo;t want to brag, but it slapped.
+        And between all of it, I finally made Broccoli Casserole again this
+        week. One of my partner&rsquo;s favorites.
+      </p>
+      <p className="personal-text measure">
+        (I won&rsquo;t brag, but it slapped.)
       </p>
     </section>
   );

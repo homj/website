@@ -225,6 +225,11 @@
   color: var(--fg);
   margin: 0;
 }
+.section-updated {
+  font-size: var(--text-sm);
+  color: var(--fg-muted);
+  margin: calc(var(--space-3) * -1) 0 var(--space-5);
+}
 
 /* ---------- experience (kit Work-style rows + sliding highlight) ----------
    NOTE: .exp must stay static (no position) so each .rrow's offsetParent
