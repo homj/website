@@ -17,16 +17,26 @@ const ICON_BG = '#FAF9F5';
 const ICON_FG = '#1B1A16';
 
 // ── favicons ────────────────────────────────────────────────────────────────
-const iconSvg = (size) => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-  <rect width="${size}" height="${size}" fill="${ICON_BG}"/>
-  <text x="50%" y="55%" text-anchor="middle" dominant-baseline="central" font-family="${JP}" font-size="${Math.round(size * 0.6)}" font-weight="500" fill="${ICON_FG}">み</text>
-</svg>`;
+// Render the み once at high resolution, trim to its exact ink bounds, then
+// resize + center-composite per size so it's perfectly centered on every icon
+// (dominant-baseline alone mis-centers CJK glyphs in the rasterizer).
+const glyphSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-family="${JP}" font-size="400" font-weight="500" fill="${ICON_FG}">み</text></svg>`;
+const glyph = await sharp(Buffer.from(glyphSvg)).png().trim().toBuffer();
+
+const icon = async (file, size) => {
+  const box = Math.round(size * 0.6); // fit the glyph in a padded, centered box
+  const g = await sharp(glyph).resize({ width: box, height: box, fit: 'inside' }).png().toBuffer();
+  return sharp({ create: { width: size, height: size, channels: 4, background: ICON_BG } })
+    .composite([{ input: g, gravity: 'center' }])
+    .png()
+    .toFile(outPath(file));
+};
 
 await Promise.all([
-  sharp(Buffer.from(iconSvg(180))).png().toFile(outPath('apple-touch-icon.png')),
-  sharp(Buffer.from(iconSvg(192))).png().toFile(outPath('icon-192.png')),
-  sharp(Buffer.from(iconSvg(512))).png().toFile(outPath('icon-512.png')),
-  sharp(Buffer.from(iconSvg(32))).png().toFile(outPath('favicon-32.png')),
+  icon('apple-touch-icon.png', 180),
+  icon('icon-192.png', 192),
+  icon('icon-512.png', 512),
+  icon('favicon-32.png', 32),
 ]);
 
 // ── OG image (1200x630) ──────────────────────────────────────────────────────

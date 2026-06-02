@@ -23,8 +23,10 @@ const PERSON = {
   worksFor: { '@type': 'Organization', name: 'Freelance' },
   knowsAbout: [
     'Software engineering', 'Product engineering', 'Web development', 'Frontend architecture',
-    'Human-Computer Interaction', 'Usability engineering', 'Web accessibility', 'SEO',
-    'Web performance', 'TypeScript', 'React', 'Angular', 'Astro', 'Node.js',
+    'Software Architecture', 'Domain-Driven Design (DDD)', 'Spec-Driven Development (SDD)',
+    'AI-driven development', 'Human-Computer Interaction', 'Usability engineering',
+    'Web accessibility', 'Web performance', 'TypeScript', 'React', 'Next.js', 'Angular',
+    'NestJS', 'Node.js', 'Nx Workspace', 'Astro',
   ],
   knowsLanguage: ['English', 'German'],
   sameAs: [
@@ -59,22 +61,3 @@ export const homeJsonLd = {
     },
   ],
 };
-
-export function articleJsonLd(opts: {
-  title: string; description: string; path: string; datePublished: string;
-}) {
-  const url = `${SITE.url}${opts.path}`;
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
-    headline: opts.title,
-    description: opts.description,
-    datePublished: opts.datePublished,
-    inLanguage: 'en',
-    image: `${SITE.url}/og.png`,
-    url,
-    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
-    author: { '@type': 'Person', name: SITE.name, url: SITE.url },
-    publisher: { '@type': 'Person', name: SITE.name, url: SITE.url },
-  };
-}
