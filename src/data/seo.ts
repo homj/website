@@ -3,7 +3,7 @@
 export const SITE = {
   url: 'https://johanneshomeier.com',
   name: 'Johannes Homeier',
-  title: 'Johannes Homeier - Product engineer & tech lead',
+  title: 'Johannes Homeier - Product Engineer & Tech Lead',
   description:
     'Johannes Homeier is a product engineer and tech lead based in Regensburg, Germany - 13+ years building software, shaping interfaces, and leading small teams.',
   locale: 'en_US',
@@ -16,7 +16,7 @@ const PERSON = {
   name: 'Johannes Homeier',
   url: SITE.url,
   image: `${SITE.url}/og.png`,
-  jobTitle: 'Product engineer & tech lead',
+  jobTitle: 'Product Engineer & Tech Lead',
   description: SITE.description,
   email: 'hello@johanneshomeier.com',
   address: { '@type': 'PostalAddress', addressLocality: 'Regensburg', addressCountry: 'DE' },

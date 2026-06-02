@@ -163,7 +163,7 @@ export function Rail() {
   return (
     <aside className="home-rail">
       <div className="rail-name">Johannes Homeier</div>
-      <div className="rail-role">Product engineer &amp; tech lead</div>
+      <div className="rail-role">Product Engineer &amp; Tech Lead</div>
       <div className="rail-loc">Regensburg, DE</div>
       <div className="rail-socials">
         {SOCIALS.map(([icon, label, href]) => (

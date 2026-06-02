@@ -48,7 +48,7 @@ const og = text({
   style: { display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '1200px', height: '630px', padding: '0 90px' },
   children: [
     text({ style: { fontFamily: 'Inter', fontWeight: 700, fontSize: '96px', letterSpacing: '-2px', color: '#16161A', lineHeight: 1 }, children: 'Johannes Homeier' }),
-    text({ style: { fontFamily: 'Inter', fontWeight: 400, fontSize: '52px', color: '#9A9AA2', marginTop: '16px' }, children: 'Product engineer & tech lead' }),
+    text({ style: { fontFamily: 'Inter', fontWeight: 400, fontSize: '52px', color: '#9A9AA2', marginTop: '16px' }, children: 'Product Engineer & Tech Lead' }),
   ],
 });
 
