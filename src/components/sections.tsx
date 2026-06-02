@@ -290,6 +290,7 @@ export function Experience() {
 // Public sitekey for the Friendly Captcha widget. When unset (e.g. local dev
 // without secrets) the captcha is skipped on both client and server.
 const FRC_SITEKEY = import.meta.env.PUBLIC_FRIENDLY_CAPTCHA_SITEKEY as string | undefined;
+const NOTE_MAX = 5000; // keep in sync with MAX_LEN in src/pages/api/contact.ts
 
 export function Contact() {
   const [note, setNote] = React.useState('');
@@ -394,7 +395,7 @@ export function Contact() {
             <label className="note-label" htmlFor="note">Leave me a note</label>
             <textarea
               id="note" className="note-field" rows={3} value={note}
-              disabled={sending}
+              maxLength={NOTE_MAX} disabled={sending}
               onChange={e => setNote(e.target.value)} onKeyDown={onNoteKey} />
             {revealed && (
               <>

@@ -15,10 +15,25 @@ function env(key: string): string | undefined {
 }
 
 const MAX_LEN = 5000;
+const EMAIL_MAX = 254; // RFC 5321 max length of an email address
 // Reject empty domain labels (e.g. `a@b..com`) and require at least one dot.
 const EMAIL_RE = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 const FRC_VERIFY_URL = 'https://global.frcapi.com/api/v2/captcha/siteverify';
 const DEFAULT_FROM = 'Johannes Homeier <no-reply@johanneshomeier.com>';
+
+// Strip control characters that would break Postgres text storage (NUL bytes
+// are rejected outright) or leak into email headers. The note keeps tabs and
+// newlines; an address keeps neither. Also trims surrounding whitespace.
+function clean(input: string, keepNewlines = false): string {
+  let out = '';
+  for (const ch of input) {
+    const code = ch.codePointAt(0)!;
+    const isControl = code < 0x20 || code === 0x7f;
+    const keep = keepNewlines && (ch === '\n' || ch === '\r' || ch === '\t');
+    if (!isControl || keep) out += ch;
+  }
+  return out.trim();
+}
 
 // Vercel Postgres (Neon) connection string, auto-injected by the integration.
 function dbUrl(): string | undefined {
@@ -38,8 +53,8 @@ export const POST: APIRoute = async ({ request }) => {
   let captchaResponse = '';
   try {
     const body = await request.json();
-    note = typeof body?.note === 'string' ? body.note.trim() : '';
-    email = typeof body?.email === 'string' ? body.email.trim() : '';
+    note = typeof body?.note === 'string' ? clean(body.note, true) : '';
+    email = typeof body?.email === 'string' ? clean(body.email) : '';
     captchaResponse = typeof body?.frcCaptchaResponse === 'string' ? body.frcCaptchaResponse : '';
   } catch {
     return json({ error: 'Invalid request body.' }, 400);
@@ -51,7 +66,7 @@ export const POST: APIRoute = async ({ request }) => {
   if (note.length > MAX_LEN) {
     return json({ error: 'Note is too long.' }, 400);
   }
-  if (email && !EMAIL_RE.test(email)) {
+  if (email && (email.length > EMAIL_MAX || !EMAIL_RE.test(email))) {
     return json({ error: 'That email address looks invalid.' }, 400);
   }
 
@@ -72,7 +87,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
   }
 
-  // Persist and email in parallel and independently — one sink failing must
+  // Persist and email in parallel and independently - one sink failing must
   // never lose the note as long as the other captured it.
   const [stored, emailed] = await Promise.all([
     hasDb ? storeNote(email, note) : Promise.resolve(false),
