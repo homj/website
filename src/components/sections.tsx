@@ -364,14 +364,6 @@ export function Contact() {
     if (e.key === 'Enter') { e.preventDefault(); submit(); }
   };
 
-  const hint = sending
-    ? 'Sending…'
-    : error
-      ? error
-      : revealed
-        ? 'Add your email for a reply (optional), then send'
-        : 'Press ⏎ or Continue';
-
   return (
     <section className="section contact">
       <div className="measure">
@@ -399,9 +391,9 @@ export function Contact() {
                 className="note-send"
                 disabled={sending || !note.trim()}
                 onClick={revealed ? undefined : reveal}>
-                {revealed ? 'Send' : 'Continue'}
+                {sending ? 'Sending…' : revealed ? 'Send' : 'Continue'}
               </button>
-              <span className="note-hint" aria-live="polite">{hint}</span>
+              {error && <span className="note-hint" role="alert">{error}</span>}
             </div>
           </form>
         )}
