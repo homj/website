@@ -267,21 +267,101 @@ export function Experience() {
 
 // ── Contact ──────────────────────────────────────────────────────────────────
 
+// Public sitekey for the Friendly Captcha widget. When unset (e.g. local dev
+// without secrets) the captcha is skipped on both client and server.
+const FRC_SITEKEY = import.meta.env.PUBLIC_FRIENDLY_CAPTCHA_SITEKEY as string | undefined;
+
 export function Contact() {
   const [note, setNote] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [revealed, setRevealed] = React.useState(false);
+  const [captcha, setCaptcha] = React.useState('');
+  const [captchaFailed, setCaptchaFailed] = React.useState(false);
   const [sent, setSent] = React.useState(false);
+  const [sending, setSending] = React.useState(false);
+  const [error, setError] = React.useState('');
 
-  const submit = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+  const emailRef = React.useRef<HTMLInputElement>(null);
+  const captchaRef = React.useRef<HTMLDivElement>(null);
+
+  // Mount the Friendly Captcha widget once the extra fields are revealed.
+  // Loaded lazily so the SDK never runs during server-side rendering.
+  React.useEffect(() => {
+    if (!revealed || !FRC_SITEKEY || !captchaRef.current) return;
+    let widget: { destroy(): void } | undefined;
+    let cancelled = false;
+    import('@friendlycaptcha/sdk')
+      .then(({ FriendlyCaptchaSDK }) => {
+        if (cancelled || !captchaRef.current) return;
+        const sdk = new FriendlyCaptchaSDK();
+        const w = sdk.createWidget({
+          element: captchaRef.current,
+          sitekey: FRC_SITEKEY,
+          startMode: 'auto',
+        });
+        widget = w;
+        w.addEventListener('frc:widget.complete', e => { setCaptcha(e.detail.response); setCaptchaFailed(false); });
+        w.addEventListener('frc:widget.error', () => { setCaptcha(''); setCaptchaFailed(true); });
+        w.addEventListener('frc:widget.expire', () => setCaptcha(''));
+      })
+      // The SDK chunk itself failed to load (offline / blocked). Surface it so
+      // the user isn't stuck staring at a "finishing the bot check" message.
+      .catch(() => { if (!cancelled) setCaptchaFailed(true); });
+    return () => { cancelled = true; widget?.destroy(); };
+  }, [revealed]);
+
+  // Reveal the optional reply-to field (and captcha) below the textarea.
+  const reveal = () => {
     if (!note.trim()) return;
-    const to = ['j.homeier', 'proton.me'].join('@');
-    window.location.href =
-      `mailto:${to}?subject=${encodeURIComponent('Note from your site')}&body=${encodeURIComponent(note.trim())}`;
-    setSent(true);
+    setRevealed(true);
+    requestAnimationFrame(() => emailRef.current?.focus());
   };
 
-  const onKey = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); }
+  const submit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const trimmed = note.trim();
+    if (!trimmed || sending) return;
+    if (FRC_SITEKEY && !captcha) {
+      setError(captchaFailed
+        ? 'The bot check couldn’t load. Please reload the page and try again.'
+        : 'Hang on — finishing the bot check…');
+      return;
+    }
+    setSending(true);
+    setError('');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          note: trimmed,
+          email: email.trim() || undefined,
+          frcCaptchaResponse: captcha || undefined,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? 'Something went wrong.');
+      }
+      setSent(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong.');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  // First Enter reveals the optional reply-to field; a second one sends.
+  const onNoteKey = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (!revealed) reveal();
+      else submit();
+    }
+  };
+
+  const onEmailKey = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') { e.preventDefault(); submit(); }
   };
 
   return (
@@ -294,8 +374,27 @@ export function Contact() {
             <label className="note-label" htmlFor="note">Leave me a note</label>
             <textarea
               id="note" className="note-field" rows={3} value={note}
-              onChange={e => setNote(e.target.value)} onKeyDown={onKey} />
-            <span className="note-hint">Press ⏎ to send</span>
+              disabled={sending}
+              onChange={e => setNote(e.target.value)} onKeyDown={onNoteKey} />
+            {revealed && (
+              <>
+                <input
+                  ref={emailRef} id="note-email" className="note-name" type="email"
+                  placeholder="Your email (optional)" value={email} disabled={sending}
+                  onChange={e => setEmail(e.target.value)} onKeyDown={onEmailKey} />
+                {FRC_SITEKEY && <div ref={captchaRef} className="note-captcha" />}
+              </>
+            )}
+            <div className="note-row">
+              <button
+                type={revealed ? 'submit' : 'button'}
+                className="note-send"
+                disabled={sending || !note.trim()}
+                onClick={revealed ? undefined : reveal}>
+                {sending ? 'Sending…' : revealed ? 'Send' : 'Continue'}
+              </button>
+              {error && <span className="note-hint" role="alert">{error}</span>}
+            </div>
           </form>
         )}
       </div>

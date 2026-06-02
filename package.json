@@ -2,6 +2,9 @@
   "name": "johannes-homeier-site",
   "type": "module",
   "version": "0.1.0",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -9,9 +12,13 @@
   },
   "dependencies": {
     "@astrojs/react": "^3.6.0",
+    "@astrojs/vercel": "^7.8.2",
+    "@friendlycaptcha/sdk": "^1.0.0",
+    "@neondatabase/serverless": "^1.1.0",
     "astro": "^4.16.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "resend": "^4.8.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",
