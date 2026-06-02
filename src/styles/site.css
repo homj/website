@@ -407,6 +407,13 @@ button.proj-row { border: none; background: transparent; font: inherit; cursor: 
 .note-hint { font-size: var(--text-sm); color: var(--fg-faint); }
 .contact-done { color: var(--fg); font-size: var(--text-md); max-width: var(--measure); }
 
+/* ---------- legal pages (imprint / privacy) ----------
+   Global (not page-scoped) so links rendered by child components — e.g. the
+   <Email> component — pick up the same style. */
+.legal a { color: var(--fg); text-decoration: underline; text-underline-offset: 2px; overflow-wrap: anywhere; }
+.legal a:hover { color: var(--fg-muted); }
+.legal .backlink { text-decoration: none; }
+
 /* ---------- sidebar layout variation ---------- */
 .home-rail { display: none; }
 :root[data-layout="sidebar"] .home-rail { display: block; margin-bottom: var(--space-7); }
