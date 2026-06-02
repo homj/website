@@ -163,7 +163,7 @@ export function Rail() {
   return (
     <aside className="home-rail">
       <div className="rail-name">Johannes Homeier</div>
-      <div className="rail-role">Product engineer &amp; tech lead</div>
+      <div className="rail-role">Product Engineer &amp; Tech Lead</div>
       <div className="rail-loc">Regensburg, DE</div>
       <div className="rail-socials">
         {SOCIALS.map(([icon, label, href]) => (
@@ -180,8 +180,8 @@ export function Rail() {
 
 export function Personal() {
   return (
-    <section className="section">
-      <div className="section-head"><p className="kick">Personal</p></div>
+    <section className="section" aria-labelledby="personal-heading">
+      <div className="section-head"><h2 id="personal-heading" className="kick">Personal</h2></div>
       <p className="section-updated">last updated: June 2026</p>
       <p className="personal-text measure">
         Life is full at the moment. We&rsquo;re only a few days away from becoming parents for
@@ -210,8 +210,8 @@ export function Personal() {
 
 export function Projects() {
   return (
-    <section className="section">
-      <div className="section-head"><p className="kick">Projects</p></div>
+    <section className="section" aria-labelledby="projects-heading">
+      <div className="section-head"><h2 id="projects-heading" className="kick">Projects</h2></div>
       <RowList>
         <ProjRow
           title="siteboard"
@@ -234,8 +234,8 @@ export function Experience() {
   const toggle = (i: number) => setOpenIdx(cur => (cur === i ? -1 : i));
 
   return (
-    <section className="section">
-      <div className="section-head"><p className="kick">Experience</p></div>
+    <section className="section" aria-labelledby="experience-heading">
+      <div className="section-head"><h2 id="experience-heading" className="kick">Experience</h2></div>
       <RowList>
         <ExpRow role="Product engineer" co="Freelance" meta="2026 - now"
           open={openIdx === 0} onToggle={() => toggle(0)}>
@@ -450,6 +450,7 @@ export function Home({ heroStyle }: HomeProps) {
       <div className="home">
         <Rail />
         <div className="home-main">
+          <h1 className="sr-only">Johannes Homeier - product engineer and tech lead based in Regensburg, Germany</h1>
           <div className="measure intro">
             <p className="lead">
               <Greeting lang="en" />, I&rsquo;m Johannes - a product engineer and tech lead based in Regensburg.

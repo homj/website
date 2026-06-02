@@ -115,10 +115,8 @@
 
 :root {
   /* — Font families —
-     Primary is an honest system sans (the moritz.works register).
-     Typeface-pairing variations swap --font-sans to Space Grotesk
-     or Schibsted Grotesk (loaded via the UI kit / cards).         */
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+     Self-hosted Inter for body + display, with a system-sans fallback. */
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
                "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Geist Mono",
                Menlo, Consolas, "Liberation Mono", monospace;

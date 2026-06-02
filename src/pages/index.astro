@@ -3,9 +3,10 @@ import Layout from '../layouts/Layout.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import HomeMain from '../components/HomeMain';
+import { homeJsonLd } from '../data/seo';
 ---
 
-<Layout>
+<Layout jsonLd={homeJsonLd}>
   <div class="site">
     <Nav />
     <main>
