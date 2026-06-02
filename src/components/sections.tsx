@@ -124,13 +124,33 @@ export function Hero({ style }: HeroProps) {
   );
 }
 
+// ── Greeting (visitor's local time) ──────────────────────────────────────────
+
+interface Greeting { en: string; ja: string; romaji: string; }
+
+function greetingFor(hour: number): Greeting {
+  if (hour >= 5 && hour < 10)  return { en: 'Good morning', ja: 'おはよう',   romaji: 'Ohayou' };
+  if (hour >= 10 && hour < 17) return { en: 'Hey',          ja: 'こんにちは', romaji: 'Konnichiwa' };
+  if (hour >= 17 && hour < 22) return { en: 'Good evening', ja: 'こんばんは', romaji: 'Konbanwa' };
+  return { en: 'Good night', ja: 'こんばんは', romaji: 'Konbanwa' }; // 22:00–05:00
+}
+
+// Render a stable midday default during SSR/first paint to avoid a hydration
+// mismatch, then resolve the visitor's actual local-time greeting after mount.
+function useGreeting(): Greeting {
+  const [greeting, setGreeting] = React.useState<Greeting>(() => greetingFor(12));
+  React.useEffect(() => { setGreeting(greetingFor(new Date().getHours())); }, []);
+  return greeting;
+}
+
 // ── Signature ────────────────────────────────────────────────────────────────
 
 export function Signature() {
+  const g = useGreeting();
   return (
     <p className="signature" lang="ja"
-      aria-label="Konnichiwa, watashi wa Yo desu. Demo hontou wa Mi desu.">
-      こんにちは、私は<span className="kana">よ</span>です。でも本当は<span className="kana">み</span>です。
+      aria-label={`${g.romaji}, watashi wa Yo desu. Demo hontou wa Mi desu.`}>
+      {g.ja}、私は<span className="kana">よ</span>です。でも本当は<span className="kana">み</span>です。
     </p>
   );
 }
@@ -409,6 +429,7 @@ interface HomeProps {
 }
 
 export function Home({ heroStyle }: HomeProps) {
+  const greeting = useGreeting();
   return (
     <div className="page wrap">
       <div className="home">
@@ -416,7 +437,7 @@ export function Home({ heroStyle }: HomeProps) {
         <div className="home-main">
           <div className="measure intro">
             <p className="lead">
-              Hey, I&rsquo;m Johannes - a product engineer and tech lead based in Regensburg.
+              {greeting.en}, I&rsquo;m Johannes - a product engineer and tech lead based in Regensburg.
               I&rsquo;ve spent the last 13 years building software, shaping interfaces, and
               leading small teams.
             </p>
