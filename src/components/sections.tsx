@@ -301,9 +301,6 @@ export function Contact() {
   const [sent, setSent] = React.useState(false);
   const [sending, setSending] = React.useState(false);
   const [error, setError] = React.useState('');
-  // Set when the visitor tries to send before the captcha has resolved, so we
-  // can finish the submission for them once it does.
-  const [pendingSubmit, setPendingSubmit] = React.useState(false);
 
   const CAPTCHA_WAIT = 'Hang on, finishing the bot check...';
   const CAPTCHA_FAILED = 'The bot check could not load. Please reload the page and try again.';
@@ -349,15 +346,9 @@ export function Contact() {
     const trimmed = note.trim();
     if (!trimmed || sending) return;
     if (FRC_SITEKEY && !captcha) {
-      if (captchaFailed) {
-        setError(CAPTCHA_FAILED);
-      } else {
-        setError(CAPTCHA_WAIT);
-        setPendingSubmit(true); // send automatically once the captcha resolves
-      }
+      setError(captchaFailed ? CAPTCHA_FAILED : CAPTCHA_WAIT);
       return;
     }
-    setPendingSubmit(false);
     setSending(true);
     setError('');
     try {
@@ -382,20 +373,14 @@ export function Contact() {
     }
   };
 
-  // Resolve a submission the visitor queued while the captcha was still
-  // working: send it once the token arrives, or surface the failure.
+  // Keep the captcha wait message from lingering: once the token resolves,
+  // clear it; if the widget errored, swap it for the failure note. Never
+  // auto-sends - the visitor stays in control and clicks Send when ready.
   React.useEffect(() => {
-    if (!pendingSubmit) return;
-    if (captcha) {
-      setPendingSubmit(false);
-      setError('');
-      submit();
-    } else if (captchaFailed) {
-      setPendingSubmit(false);
-      setError(CAPTCHA_FAILED);
-    }
+    if (captcha) setError(prev => (prev === CAPTCHA_WAIT ? '' : prev));
+    else if (captchaFailed) setError(prev => (prev === CAPTCHA_WAIT ? CAPTCHA_FAILED : prev));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [captcha, captchaFailed, pendingSubmit]);
+  }, [captcha, captchaFailed]);
 
   // First Enter reveals the optional reply-to field; a second one sends.
   const onNoteKey = (e: React.KeyboardEvent) => {
