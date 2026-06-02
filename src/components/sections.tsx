@@ -263,7 +263,7 @@ export function Experience() {
           </p>
         </ExpRow>
 
-        <ExpRow role="Owner" co="twoid" meta="2013 - 2016"
+        <ExpRow role="Owner" co="twoid" meta="2012 - 2016"
           open={openIdx === 3} onToggle={() => toggle(3)}>
           <p>
             A side business while studying. Built native Android apps for local and
@@ -272,7 +272,7 @@ export function Experience() {
           </p>
         </ExpRow>
 
-        <ExpRow role="Working student, QA" co="Infineon" meta="2012 - 2014"
+        <ExpRow role="Working student, QA" co="Infineon" meta="2012 - 2013"
           open={openIdx === 4} onToggle={() => toggle(4)}>
           <p>
             Supported the QA team handling supplier audits through data analysis, fault
