@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { Resend } from 'resend';
+import { neon } from '@neondatabase/serverless';
 
 // Run on-demand as a serverless function rather than being prerendered.
 export const prerender = false;
@@ -11,6 +12,10 @@ const MAX_LEN = 5000;
 const EMAIL_RE = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 const FRC_VERIFY_URL = 'https://global.frcapi.com/api/v2/captcha/siteverify';
 
+// Vercel Postgres (Neon) connection string, auto-injected by the integration.
+const DB_URL = import.meta.env.POSTGRES_URL ?? import.meta.env.DATABASE_URL;
+const db = DB_URL ? neon(DB_URL) : undefined;
+
 // Catch the misconfiguration where the server enforces the captcha but the
 // client never renders it — that combination rejects every submission.
 if (import.meta.env.FRIENDLY_CAPTCHA_API_KEY && !import.meta.env.PUBLIC_FRIENDLY_CAPTCHA_SITEKEY) {
@@ -21,9 +26,9 @@ if (import.meta.env.FRIENDLY_CAPTCHA_API_KEY && !import.meta.env.PUBLIC_FRIENDLY
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  const apiKey = import.meta.env.RESEND_API_KEY;
-  if (!apiKey) {
-    return json({ error: 'Email service is not configured.' }, 500);
+  const resendKey = import.meta.env.RESEND_API_KEY;
+  if (!db && !resendKey) {
+    return json({ error: 'Contact is not configured.' }, 500);
   }
 
   let note = '';
@@ -60,26 +65,74 @@ export const POST: APIRoute = async ({ request }) => {
     }
   }
 
-  const resend = new Resend(apiKey);
-  const { error } = await resend.emails.send({
-    // Until a custom domain is verified in Resend, use the shared onboarding
-    // sender. Swap this for an address on your own verified domain later.
-    from: import.meta.env.CONTACT_FROM ?? 'Site Notes <onboarding@resend.dev>',
-    to: TO,
-    // Reply straight to the visitor when they shared an address, otherwise
-    // keep replies pointed at the inbox itself.
-    replyTo: email || TO,
-    subject: 'Note from your site',
-    text: email ? `From: ${email}\n\n${note}` : note,
-  });
+  // Persist and email in parallel and independently — one sink failing must
+  // never lose the note as long as the other captured it.
+  const [stored, emailed] = await Promise.all([
+    db ? storeNote(email, note) : Promise.resolve(false),
+    resendKey ? sendEmail(resendKey, email, note) : Promise.resolve(false),
+  ]);
 
-  if (error) {
-    console.error('Resend error:', error);
-    return json({ error: 'Could not send your note. Please try again.' }, 502);
+  if (!stored && !emailed) {
+    return json({ error: 'Could not save your note. Please try again.' }, 502);
   }
 
   return json({ ok: true }, 200);
 };
+
+// Lazily create the table once per process; reset on failure so a later
+// request can retry rather than caching a rejected promise.
+let schemaReady: Promise<void> | undefined;
+
+async function storeNote(email: string, note: string): Promise<boolean> {
+  if (!db) return false;
+  try {
+    schemaReady ??= ensureSchema().catch(err => { schemaReady = undefined; throw err; });
+    await schemaReady;
+    await db`INSERT INTO notes (email, note) VALUES (${email || null}, ${note})`;
+    return true;
+  } catch (err) {
+    console.error('Note storage error:', err);
+    return false;
+  }
+}
+
+async function ensureSchema(): Promise<void> {
+  await db!`
+    CREATE TABLE IF NOT EXISTS notes (
+      id          bigint generated always as identity primary key,
+      created_at  timestamptz not null default now(),
+      email       text,
+      note        text not null
+    )
+  `;
+  await db!`CREATE INDEX IF NOT EXISTS notes_created_at_idx ON notes (created_at DESC)`;
+  await db!`CREATE INDEX IF NOT EXISTS notes_email_idx ON notes (email)`;
+}
+
+async function sendEmail(apiKey: string, email: string, note: string): Promise<boolean> {
+  try {
+    const resend = new Resend(apiKey);
+    const { error } = await resend.emails.send({
+      // Until a custom domain is verified in Resend, use the shared onboarding
+      // sender. Swap this for an address on your own verified domain later.
+      from: import.meta.env.CONTACT_FROM ?? 'Site Notes <onboarding@resend.dev>',
+      to: TO,
+      // Reply straight to the visitor when they shared an address, otherwise
+      // keep replies pointed at the inbox itself.
+      replyTo: email || TO,
+      subject: 'Note from your site',
+      text: email ? `From: ${email}\n\n${note}` : note,
+    });
+    if (error) {
+      console.error('Resend error:', error);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error('Resend error:', err);
+    return false;
+  }
+}
 
 // Verifies a Friendly Captcha response token against the v2 siteverify API.
 async function verifyCaptcha(apiKey: string, response: string): Promise<boolean> {
