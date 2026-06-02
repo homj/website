@@ -194,6 +194,18 @@
   .wash { animation: none; }
 }
 
+/* ---------- time-of-day greeting ----------
+   Variants render statically; reveal the one matching <html data-daypart>
+   (set before first paint in Layout.astro, so it never flashes). With no JS,
+   data-daypart is absent and the daytime greeting shows. */
+.greet { display: none; }
+.greet[data-greet="day"] { display: inline; }
+:root[data-daypart] .greet { display: none; }
+:root[data-daypart="morning"] .greet[data-greet="morning"],
+:root[data-daypart="day"]     .greet[data-greet="day"],
+:root[data-daypart="evening"] .greet[data-greet="evening"],
+:root[data-daypart="night"]   .greet[data-greet="night"] { display: inline; }
+
 /* ---------- intro / lead ---------- */
 .intro { margin-bottom: var(--space-6); }
 .intro .lead { margin-bottom: var(--space-4); }
