@@ -1,33 +1,35 @@
 import type { APIRoute } from 'astro';
 import { Resend } from 'resend';
-import { neon } from '@neondatabase/serverless';
+import { neon, type NeonQueryFunction } from '@neondatabase/serverless';
 
 // Run on-demand as a serverless function rather than being prerendered.
 export const prerender = false;
 
-// Recipient inbox for contact notes, configured via the environment.
-const TO = import.meta.env.CONTACT_TO ?? ['j.homeier', 'proton.me'].join('@');
+// Read env at request/runtime. Vercel injects vars into process.env per
+// invocation; we fall back to import.meta.env for local `astro dev`. Reading
+// import.meta.env directly would inline values at BUILD time and silently miss
+// any var added to the project afterwards.
+function env(key: string): string | undefined {
+  const proc = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process;
+  return proc?.env?.[key] ?? (import.meta.env as Record<string, string | undefined>)[key];
+}
+
 const MAX_LEN = 5000;
 // Reject empty domain labels (e.g. `a@b..com`) and require at least one dot.
 const EMAIL_RE = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 const FRC_VERIFY_URL = 'https://global.frcapi.com/api/v2/captcha/siteverify';
+const DEFAULT_FROM = 'Johannes Homeier <no-reply@johanneshomeier.com>';
 
 // Vercel Postgres (Neon) connection string, auto-injected by the integration.
-const DB_URL = import.meta.env.POSTGRES_URL ?? import.meta.env.DATABASE_URL;
-const db = DB_URL ? neon(DB_URL) : undefined;
-
-// Catch the misconfiguration where the server enforces the captcha but the
-// client never renders it — that combination rejects every submission.
-if (import.meta.env.FRIENDLY_CAPTCHA_API_KEY && !import.meta.env.PUBLIC_FRIENDLY_CAPTCHA_SITEKEY) {
-  console.warn(
-    'FRIENDLY_CAPTCHA_API_KEY is set without PUBLIC_FRIENDLY_CAPTCHA_SITEKEY — ' +
-    'the widget will not render and every contact submission will be rejected.',
-  );
+function dbUrl(): string | undefined {
+  return env('POSTGRES_URL') ?? env('DATABASE_URL')
+    ?? env('POSTGRES_URL_NON_POOLING') ?? env('DATABASE_URL_UNPOOLED');
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  const resendKey = import.meta.env.RESEND_API_KEY;
-  if (!db && !resendKey) {
+  const resendKey = env('RESEND_API_KEY');
+  const hasDb = !!dbUrl();
+  if (!hasDb && !resendKey) {
     return json({ error: 'Contact is not configured.' }, 500);
   }
 
@@ -55,8 +57,13 @@ export const POST: APIRoute = async ({ request }) => {
 
   // Bot prevention via Friendly Captcha. Only enforced when an API key is
   // configured, so local dev / preview without secrets keeps working.
-  const frcApiKey = import.meta.env.FRIENDLY_CAPTCHA_API_KEY;
+  const frcApiKey = env('FRIENDLY_CAPTCHA_API_KEY');
   if (frcApiKey) {
+    // The server enforces the captcha but the client only renders it when the
+    // public sitekey is set; without it, every submission below would be rejected.
+    if (!env('PUBLIC_FRIENDLY_CAPTCHA_SITEKEY')) {
+      console.warn('FRIENDLY_CAPTCHA_API_KEY is set without PUBLIC_FRIENDLY_CAPTCHA_SITEKEY — the widget will not render and submissions will be rejected.');
+    }
     if (!captchaResponse) {
       return json({ error: 'Captcha verification is required.' }, 400);
     }
@@ -68,7 +75,7 @@ export const POST: APIRoute = async ({ request }) => {
   // Persist and email in parallel and independently — one sink failing must
   // never lose the note as long as the other captured it.
   const [stored, emailed] = await Promise.all([
-    db ? storeNote(email, note) : Promise.resolve(false),
+    hasDb ? storeNote(email, note) : Promise.resolve(false),
     resendKey ? sendEmail(resendKey, email, note) : Promise.resolve(false),
   ]);
 
@@ -84,11 +91,13 @@ export const POST: APIRoute = async ({ request }) => {
 let schemaReady: Promise<void> | undefined;
 
 async function storeNote(email: string, note: string): Promise<boolean> {
-  if (!db) return false;
+  const url = dbUrl();
+  if (!url) return false;
   try {
-    schemaReady ??= ensureSchema().catch(err => { schemaReady = undefined; throw err; });
+    const sql = neon(url);
+    schemaReady ??= ensureSchema(sql).catch(err => { schemaReady = undefined; throw err; });
     await schemaReady;
-    await db`INSERT INTO notes (email, note) VALUES (${email || null}, ${note})`;
+    await sql`INSERT INTO notes (email, note) VALUES (${email || null}, ${note})`;
     return true;
   } catch (err) {
     console.error('Note storage error:', err);
@@ -96,8 +105,8 @@ async function storeNote(email: string, note: string): Promise<boolean> {
   }
 }
 
-async function ensureSchema(): Promise<void> {
-  await db!`
+async function ensureSchema(sql: NeonQueryFunction<false, false>): Promise<void> {
+  await sql`
     CREATE TABLE IF NOT EXISTS notes (
       id          bigint generated always as identity primary key,
       created_at  timestamptz not null default now(),
@@ -105,21 +114,20 @@ async function ensureSchema(): Promise<void> {
       note        text not null
     )
   `;
-  await db!`CREATE INDEX IF NOT EXISTS notes_created_at_idx ON notes (created_at DESC)`;
-  await db!`CREATE INDEX IF NOT EXISTS notes_email_idx ON notes (email)`;
+  await sql`CREATE INDEX IF NOT EXISTS notes_created_at_idx ON notes (created_at DESC)`;
+  await sql`CREATE INDEX IF NOT EXISTS notes_email_idx ON notes (email)`;
 }
 
 async function sendEmail(apiKey: string, email: string, note: string): Promise<boolean> {
+  const to = env('CONTACT_TO') ?? ['j.homeier', 'proton.me'].join('@');
   try {
     const resend = new Resend(apiKey);
     const { error } = await resend.emails.send({
-      // Until a custom domain is verified in Resend, use the shared onboarding
-      // sender. Swap this for an address on your own verified domain later.
-      from: import.meta.env.CONTACT_FROM ?? 'Site Notes <onboarding@resend.dev>',
-      to: TO,
+      from: env('CONTACT_FROM') ?? DEFAULT_FROM,
+      to,
       // Reply straight to the visitor when they shared an address, otherwise
       // keep replies pointed at the inbox itself.
-      replyTo: email || TO,
+      replyTo: email || to,
       subject: 'Note from your site',
       text: email ? `From: ${email}\n\n${note}` : note,
     });
@@ -136,7 +144,7 @@ async function sendEmail(apiKey: string, email: string, note: string): Promise<b
 
 // Verifies a Friendly Captcha response token against the v2 siteverify API.
 async function verifyCaptcha(apiKey: string, response: string): Promise<boolean> {
-  const sitekey = import.meta.env.PUBLIC_FRIENDLY_CAPTCHA_SITEKEY;
+  const sitekey = env('PUBLIC_FRIENDLY_CAPTCHA_SITEKEY');
   try {
     const res = await fetch(FRC_VERIFY_URL, {
       method: 'POST',
