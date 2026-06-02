@@ -194,7 +194,7 @@ export function Personal() {
         ikigai. It&rsquo;s good to be reading again, even if it&rsquo;s just a small book.
       </p>
       <p className="personal-text measure">
-        And between all of it, I finally made <strong>Broccoli Casserole</strong> again this
+        And between all of it, I finally made Broccoli Casserole again this
         week. One of my partner&rsquo;s favorites.
       </p>
       <p className="personal-text measure">
