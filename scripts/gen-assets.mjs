@@ -20,7 +20,7 @@ const ICON_FG = '#1B1A16';
 // Render the み once at high resolution, trim to its exact ink bounds, then
 // resize + center-composite per size so it's perfectly centered on every icon
 // (dominant-baseline alone mis-centers CJK glyphs in the rasterizer).
-const glyphSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-family="${JP}" font-size="400" font-weight="500" fill="${ICON_FG}">み</text></svg>`;
+const glyphSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800"><text x="400" y="520" text-anchor="middle" font-family="${JP}" font-size="360" font-weight="500" fill="${ICON_FG}">み</text></svg>`;
 const glyph = await sharp(Buffer.from(glyphSvg)).png().trim().toBuffer();
 
 const icon = async (file, size) => {
