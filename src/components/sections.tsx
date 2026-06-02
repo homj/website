@@ -213,12 +213,13 @@ export function Projects() {
       <RowList>
         <ProjRow
           title="siteboard"
-          desc="Website-analysis platform for SEO, performance, accessibility & security" />
+          desc="Website-analysis platform for SEO, performance, accessibility & security"
+          href="https://siteboard.io/en" />
         <ProjRow
           title="Composables"
           desc="Signal-based composable functions for Angular"
           meta="GitHub"
-          href="https://homj.github.io/angular-extensions/" />
+          href="https://github.com/homj/angular-extensions/tree/main/libs/composables" />
       </RowList>
     </section>
   );
