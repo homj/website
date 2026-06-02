@@ -2,23 +2,14 @@
 import Layout from '../layouts/Layout.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
-
-// Fill these in before going live. A real postal address is required by § 5 DDG.
-const CONTROLLER = {
-  name: '[Your name]',
-  street: '[Street and house number]',
-  city: '[Postal code and city]',
-  country: 'Germany',
-  email: '[your@email.tld]',
-  phone: '[optional phone number]',
-};
+import { CONTROLLER } from '../data/legal';
 ---
 
 <Layout title="Imprint — Johannes Homeier" description="Imprint and legal information for this website.">
   <div class="site">
     <Nav />
     <main>
-      <article class="page wrap detail legal measure">
+      <article class="page wrap detail legal">
         <a class="backlink" href="/">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="m12 19-7-7 7-7"/>
@@ -33,21 +24,21 @@ const CONTROLLER = {
         <address>
           {CONTROLLER.name}<br />
           {CONTROLLER.street}<br />
-          {CONTROLLER.city}<br />
+          {CONTROLLER.postalCode} {CONTROLLER.city}<br />
           {CONTROLLER.country}
         </address>
 
         <h2>Contact</h2>
-        <p>
-          Email: {CONTROLLER.email}<br />
-          Phone: {CONTROLLER.phone}
-        </p>
+        <p>Email: {CONTROLLER.email}</p>
+
+        <h2>VAT identification number</h2>
+        <p>VAT identification number pursuant to &sect; 27a of the German VAT Act (UStG):<br />{CONTROLLER.vatId}</p>
 
         <h2>Responsible for the content pursuant to &sect; 18 (2) MStV</h2>
         <address>
           {CONTROLLER.name}<br />
           {CONTROLLER.street}<br />
-          {CONTROLLER.city}
+          {CONTROLLER.postalCode} {CONTROLLER.city}
         </address>
 
         <h2>EU dispute resolution</h2>
@@ -71,7 +62,9 @@ const CONTROLLER = {
 </Layout>
 
 <style>
-  .legal h2 { margin-top: var(--space-7); }
+  .legal h1 { font-size: 1.375rem; }
+  .legal h2 { font-size: var(--text-md); margin-top: var(--space-7); }
+  .legal p, .legal address { max-width: none; }
   .legal address { font-style: normal; line-height: var(--leading-relaxed); margin-bottom: var(--space-5); }
   .legal a { color: var(--fg); text-decoration: underline; text-underline-offset: 2px; overflow-wrap: anywhere; }
   .legal a:hover { color: var(--fg-muted); }
