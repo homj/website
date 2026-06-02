@@ -1,0 +1,212 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+// Fill these in — they appear in the Imprint and here as the controller.
+const CONTROLLER = {
+  name: '[Your name]',
+  street: '[Street and house number]',
+  city: '[Postal code and city]',
+  email: '[your@email.tld]',
+};
+const UPDATED = '2 June 2026';
+---
+
+<Layout title="Privacy Policy — Johannes Homeier" description="How personal data is processed on this website.">
+  <div class="site">
+    <Nav />
+    <main>
+      <article class="page wrap detail legal measure">
+        <a class="backlink" href="/">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m12 19-7-7 7-7"/>
+            <path d="M19 12H5"/>
+          </svg>
+          Back
+        </a>
+
+        <h1>Privacy Policy</h1>
+        <p class="legal-updated">Last updated: {UPDATED}</p>
+
+        <h2>1. Introduction</h2>
+        <p>This website is operated by: {CONTROLLER.name}.</p>
+        <p>It is very important to us to handle our website visitors&rsquo; data confidentially and to protect it in the best possible way. For this reason, we make every effort to comply with the requirements of the GDPR.</p>
+        <p>Below we explain how we process your data on our website. We use language that is as clear and transparent as possible so that you really understand what happens to your data.</p>
+
+        <h2>2. General information</h2>
+
+        <h3>2.1 Processing of personal data and other terms</h3>
+        <p>Data protection applies to the processing of personal data. Personal data means all data with which you can be personally identified. This is, for example, the IP address of the device (PC, laptop, smartphone, etc.) you are currently sitting in front of. Such data is processed when &lsquo;something happens to it&rsquo;. Here, for example, the IP is transmitted from the browser to our provider and automatically stored there. This is then a processing (according to Art. 4 No. 2 GDPR) of personal data (according to Art. 4 No. 1 GDPR).</p>
+        <p>These and other legal definitions can be found in Art. 4 GDPR.</p>
+
+        <h3>2.2 Applicable regulations/laws &mdash; GDPR, BDSG and TDDDG</h3>
+        <p>The scope of data protection is regulated by law. In this case, these are the GDPR (General Data Protection Regulation) as a European regulation and the BDSG (Federal Data Protection Act) as a national law.</p>
+        <p>In addition, the TDDDG supplements the provisions of the GDPR as far as the use of cookies is concerned.</p>
+
+        <h3>2.3 The person responsible</h3>
+        <p>The controller within the meaning of the GDPR is responsible for data processing on this website. This is the natural or legal person who alone or jointly with others determines the purposes and means of the processing of personal data.</p>
+        <p>You can reach the person responsible at:</p>
+        <address>
+          {CONTROLLER.name}<br />
+          {CONTROLLER.street}<br />
+          {CONTROLLER.city}<br />
+          {CONTROLLER.email}
+        </address>
+
+        <h3>2.4 How data is generally processed on this website</h3>
+        <p>As we have already established, there is data (e.g. IP address) that is collected automatically. This data is mainly required for the technical provision of the website. If we also use personal data or collect other data, we will inform you of this or ask for your consent.</p>
+        <p>You consciously provide us with other personal data.</p>
+        <p>You will find detailed information on this below.</p>
+
+        <h3>2.5 Your rights</h3>
+        <p>The GDPR provides you with comprehensive rights. These include, for example, free information about the origin, recipient and purpose of your stored personal data. You can also request the rectification, blocking or erasure of this data or lodge a complaint with the competent data protection supervisory authority. You can revoke your consent at any time.</p>
+        <p>You can find out what these rights look like in detail and how to exercise them in the last section of this Privacy Policy.</p>
+
+        <h3>2.6 Data protection &mdash; Our view</h3>
+        <p>Data protection is more than just a chore for us! Personal data has great value and careful handling of this data should be a matter of course in our digitalized world. As a website visitor, you should also be able to decide for yourself what &ldquo;happens&rdquo; to your data, when and by whom. That is why we are committed to complying with all legal regulations, only collect the data we need and, of course, treat it confidentially.</p>
+
+        <h3>2.7 Forwarding and deletion</h3>
+        <p>The transfer and deletion of data are also important and sensitive issues. We would therefore like to briefly inform you in advance about our general approach to this.</p>
+        <p>Data will only be passed on on the basis of a legal basis and only if this is unavoidable. This may be the case in particular if it is a so-called Data Processor and a Data Processing Agreement has been concluded in accordance with Art. 28 GDPR.</p>
+        <p>We delete your data when the purpose and legal basis for processing no longer apply and the deletion does not conflict with any other legal obligations. Art. 17 GDPR also provides a &lsquo;good&rsquo; overview of this.</p>
+        <p>For further information, please refer to this Privacy Policy and contact the person responsible if you have any specific questions.</p>
+
+        <h3>2.8 Hosting</h3>
+        <h4>Vercel</h4>
+        <p>The Vercel service of Vercel Inc, 340 S Lemon Ave #4133, Walnut, CA 91789, USA, is used to host this website. Vercel is a cloud platform for the provision and operation of web applications and static websites via a global edge network. Each time this website is accessed, technical connection data is automatically recorded in so-called server log files, including IP address, date and time of access, page accessed, HTTP status code and amount of data transferred. Processing is carried out on the basis of Art. 6 para. 1 lit. f GDPR (legitimate interest in the secure and functional operation of the website). As Vercel Inc. is based in the USA and the website is delivered via a global edge network, personal data is transferred to a third country. Vercel is certified according to the EU-US Data Privacy Framework (DPF); in addition, standard contractual clauses (SCC) pursuant to Art. 46 para. 2 lit. c GDPR are used. Further information can be found in Vercel&rsquo;s Privacy Policy: <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">https://vercel.com/legal/privacy-policy</a></p>
+
+        <h3>2.9 Legal basis</h3>
+        <p>The processing of personal data always requires a legal basis. The GDPR provides the following possibilities in Art. 6 para. 1 sentence 1:</p>
+        <ol type="a" class="legal-alpha">
+          <li>The data subject has given their consent to the processing of their personal data for one or more specific purposes;</li>
+          <li>Processing is necessary for the performance of a contract to which the data subject is party or in order to take steps at the request of the data subject prior to entering into a contract;</li>
+          <li>The processing is necessary for compliance with a legal obligation to which the controller is subject;</li>
+          <li>Processing is necessary in order to protect the vital interests of the data subject or of another natural person;</li>
+          <li>The processing is necessary for the performance of a task carried out in the public interest or in the exercise of official authority vested in the controller;</li>
+          <li>Processing is necessary for the purposes of the legitimate interests pursued by the controller or by a third party, except where such interests are overridden by the interests or fundamental rights and freedoms of the data subject which require protection of personal data, in particular where the data subject is a child.</li>
+        </ol>
+        <p>In the following sections, we will provide you with the specific legal basis for the respective processing.</p>
+
+        <h2>3. What happens on our website</h2>
+        <p>When you visit our website, we process your personal data.</p>
+        <p>We use SSL or TLS encryption to protect this data in the best possible way against unauthorized access by third parties. You can recognize this encrypted connection by the https:// or lock symbol in the address bar of your browser.</p>
+        <p>Below you can find out what data is collected when you visit our website, for what purpose this is done and on what legal basis.</p>
+
+        <h3>3.1 Data collection when accessing the website</h3>
+        <p>When you visit the website, information is automatically stored in so-called server log files. This is the following information:</p>
+        <ul>
+          <li>Browser type and browser version</li>
+          <li>Operating system used</li>
+          <li>Referrer URL</li>
+          <li>Host name of the accessing computer</li>
+          <li>Time of the server request</li>
+          <li>IP address</li>
+        </ul>
+        <p>This data is temporarily required in order to be able to display our website to you permanently and without any problems. In particular, this data is used for the following purposes:</p>
+        <ul>
+          <li>System security of the website</li>
+          <li>System stability of the website</li>
+          <li>Troubleshooting on the website</li>
+          <li>Establishing a connection to the website</li>
+          <li>Presentation of the website</li>
+        </ul>
+        <p>Data processing is carried out in accordance with Art. 6 para. 1 lit. f GDPR and is based on our legitimate interest in the processing of this data, in particular our interest in the functionality of the website and its security.</p>
+        <p>Where possible, this data is stored in pseudonymized form and deleted once the respective purpose has been achieved.</p>
+        <p>If the server log files make it possible to identify the data subject, the data is stored for a maximum period of 14 days. An exception is made if a security-relevant event occurs. In this case, the server log files are stored until the security-relevant event has been resolved and finally clarified.</p>
+        <p>Otherwise, no merging with other data takes place.</p>
+
+        <h3>3.2 Cookies</h3>
+        <h4>3.2.1 General information</h4>
+        <p>This website uses so-called cookies. This is a data record, information that is stored in the browser of your end device and is related to our website.</p>
+        <p>The use of cookies can make it easier for visitors to navigate the website.</p>
+        <h4>3.2.2 Rejecting cookies</h4>
+        <p>You can prevent cookies from being set by adjusting your browser settings.</p>
+        <p>Here you will find the corresponding links to frequently used browsers:</p>
+        <ul>
+          <li>Mozilla Firefox: <a href="https://support.mozilla.org/de/kb/cookies-und-website-daten-in-firefox-loschen" target="_blank" rel="noopener noreferrer">support.mozilla.org</a></li>
+          <li>Google Chrome: <a href="https://support.google.com/chrome/answer/95647" target="_blank" rel="noopener noreferrer">support.google.com</a></li>
+          <li>Microsoft Edge: <a href="https://support.microsoft.com/de-de/windows/l%C3%B6schen-und-verwalten-von-cookies-168dab11-0753-043d-7c16-ede5947fc64d" target="_blank" rel="noopener noreferrer">support.microsoft.com</a></li>
+          <li>Safari: <a href="https://support.apple.com/de-de/guide/safari/sfri11471/mac" target="_blank" rel="noopener noreferrer">support.apple.com</a></li>
+        </ul>
+        <p>If you are using a different browser, we recommend that you enter the name of your browser and &lsquo;delete and manage cookies&rsquo; in a search engine and follow the official link to your browser.</p>
+        <p>Alternatively, you can also manage your cookie settings at <a href="https://www.aboutads.info/choices/" target="_blank" rel="noopener noreferrer">www.aboutads.info/choices</a> or <a href="https://www.youronlinechoices.com" target="_blank" rel="noopener noreferrer">www.youronlinechoices.com</a>.</p>
+        <p>However, we must point out that a comprehensive blocking/deletion of cookies can lead to impairments in the use of the website.</p>
+        <h4>3.2.3 Technically necessary cookies</h4>
+        <p>We use technically necessary cookies on this website to ensure that our website functions correctly and in accordance with the applicable laws. They help to make the website user-friendly. Some functions of our website cannot be displayed without the use of cookies.</p>
+        <p>The legal basis for this is Art. 6 para. 1 lit. b, c and/or f GDPR, depending on the individual case.</p>
+        <h4>3.2.4 Technically not necessary cookies</h4>
+        <p>We also use cookies on our website that are not technically necessary. These cookies are used, among other things, to analyze the surfing behavior of the website visitor or to offer functions of the website that are not technically necessary.</p>
+        <p>The legal basis for this is your consent in accordance with Art. 6 para. 1 lit. a GDPR.</p>
+        <p>Technically unnecessary cookies are only set with your consent, which you can revoke at any time in the cookie consent tool.</p>
+
+        <h3>3.3 Data processing through user input</h3>
+        <h4>3.3.1 Contact us</h4>
+        <h4>Contact form (own development)</h4>
+        <p>A self-developed contact form is provided on our website to enable direct contact. The form is used to enter and transmit personal inquiries and we, the website operator, are solely responsible for its technical content. The contact form is generally used to process the communication content entered (such as name, email address and message text), technical metadata (e.g. IP address, time of transmission, browser used) and any other information provided by users. This data is processed for the purpose of processing and responding to inquiries and initiating or processing contractual relationships. The legal basis for the processing is Art. 6 para. 1 lit. b GDPR for the implementation of (pre-)contractual measures or Art. 6 para. 1 lit. f GDPR on the basis of the legitimate interest in efficient and user-friendly communication. No cookies are set as part of the contact form. Personal data is not transferred to third countries. The data is deleted as soon as it is no longer required to fulfill the purpose, consent is revoked or statutory retention obligations have expired. Further information can be found in this Privacy Policy.</p>
+
+        <h3>3.4 Mailing service</h3>
+        <h4>Resend</h4>
+        <p>We use the Resend e-mail service on our website, provided by Resend, Inc, 2261 Market Street, #5039, San Francisco, CA 94114, USA. This service enables us to efficiently send transactional and marketing emails to our users. Personal data such as email addresses, names and the content of the emails are processed. The purpose of data processing is to communicate with our users, for example for order confirmations or newsletter distribution. The legal basis for the processing of this data is Art. 6 para. 1 lit. a GDPR, as the processing is based on the consent of the data subject, and Art. 6 para. 1 lit. f GDPR, as there is a legitimate interest in efficient communication with our users. Resend uses cookies to ensure the functionality of the platform and to optimize the user experience. These cookies are only set with consent and can be revoked at any time. The legal basis for this is Art. 6 para. 1 lit. a GDPR. Personal data is transferred to the USA. Resend is certified under the EU-U.S. Data Privacy Framework to ensure an adequate level of data protection. In addition, standard contractual clauses (SCCs) in accordance with Art. 46 GDPR are used as suitable guarantees. The data is stored for as long as it is required for the stated purpose or as required by statutory retention periods. Further information on data processing can be found at: <a href="https://resend.com/legal/dpa" target="_blank" rel="noopener noreferrer">https://resend.com/legal/dpa</a></p>
+
+        <h3>3.5 Analysis and tracking tools</h3>
+        <h4>Vercel Analytics</h4>
+        <p>This website uses the analytics service Vercel Analytics from Vercel Inc, 340 S Lemon Ave #4133, Walnut, CA 91789, USA. Vercel Analytics is a privacy-friendly web analysis tool that evaluates user behavior on the website without setting cookies and without permanently storing IP addresses. Each time a page is accessed, technical usage data is collected, including pages accessed, length of visit, referrer, device type, operating system, browser type and country of access (derived from the IP address, which is subsequently discarded). The processing is carried out on the basis of Art. 6 para. 1 lit. f GDPR (legitimate interest in optimizing the website). Since no cookies are set and no IP addresses are stored, no consent is required in accordance with Section 25 TDDDG. As Vercel Inc. is based in the USA, personal data is transferred to a third country. Vercel is certified according to the EU-US Data Privacy Framework (DPF); in addition, standard contractual clauses (SCC) pursuant to Art. 46 para. 2 lit. c GDPR are used. Further information can be found in Vercel&rsquo;s Privacy Policy: <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">https://vercel.com/legal/privacy-policy</a></p>
+        <h4>Vercel Speed Insights</h4>
+        <p>This website uses the performance analysis service Vercel Speed Insights from Vercel Inc, 340 S Lemon Ave #4133, Walnut, CA 91789, USA. Vercel Speed Insights is a technical monitoring tool that measures the loading speed and quality of use of the website using Core Web Vitals without setting cookies and without permanently storing IP addresses. Technical performance data is recorded each time a page is accessed, including loading times (LCP, FCP, TTFB), interaction values (INP), visual stability (CLS), device type, operating system, browser type and country of access (derived from the IP address, which is subsequently discarded). Processing is carried out on the basis of Art. 6 para. 1 lit. f GDPR (legitimate interest in the technical optimization and quality assurance of the website). Since no cookies are set and no IP addresses are stored, no consent is required in accordance with Section 25 TDDDG. As Vercel Inc. is based in the USA, personal data is transferred to a third country. Vercel is certified according to the EU-US Data Privacy Framework (DPF); in addition, standard contractual clauses (SCC) pursuant to Art. 46 para. 2 lit. c GDPR are used. Further information can be found in Vercel&rsquo;s Privacy Policy: <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">https://vercel.com/legal/privacy-policy</a></p>
+
+        <h3>3.6 Third-party content</h3>
+        <h4>Friendly Captcha</h4>
+        <p>This website uses the Friendly Captcha service to protect against bots and automated attacks. Friendly Captcha is operated by Friendly Captcha GmbH, Am Anger 3-5, 82237 W&ouml;rthsee, Germany. The service integrates invisible cryptographic puzzles into forms, such as contact, registration or login forms, to protect them from spam and misuse. A proof-of-work puzzle is solved locally on the device of the person visiting the website. Friendly Captcha states that it does not process any personal data during use. No cookies or other tracking technologies are used, and the IP address is immediately anonymized via one-way hashing. The purpose of data processing is to protect the website and its forms from automated misuse by bots and malicious software. The legal basis for the use of cookies is Art. 6 para. 1 lit. f GDPR, as there is a legitimate interest in ensuring the secure operation and integrity of the website. Friendly Captcha does not use cookies. Personal data is not transferred to third countries; all data processing takes place within the EU. Friendly Captcha does not store personal data; it is not possible to assign it to specific persons, so no specific deletion periods apply. Further information can be found in Friendly Captcha&rsquo;s Privacy Policy: <a href="https://friendlycaptcha.com/legal/privacy-end-users/" target="_blank" rel="noopener noreferrer">https://friendlycaptcha.com/legal/privacy-end-users/</a></p>
+
+        <h3>3.7 Cloud backups</h3>
+        <h4>Vercel</h4>
+        <p>We use the Vercel cloud hosting and provisioning service on our website, operated by Vercel Inc, San Francisco, California, United States. Vercel enables the hosting and automated provision of web applications as well as serverless functions and analysis services in real time. During use, Vercel processes, among other things, IP addresses, the approximate location (city and country, derived from the IP address), information on the end device used (device type, browser, operating system), the page URLs accessed (without query parameters), referrer information, host names, traffic data (page views, clicks, timestamps), UTM parameters (for Plus/Enterprise use), a daily, pseudonymized visitor hash, web performance metrics and other system-related information. Data processing is carried out for the purpose of secure and high-performance hosting, monitoring website performance and ensuring the functionality of the websites provided. The legal basis is Art. 6 para. 1 lit. f GDPR, as there is a legitimate interest in the secure and efficient provision and analysis of the website. Vercel does not set any cookies that require consent, but processes the aforementioned data for the purpose of technical provision and statistical evaluation on the basis of legitimate interest. Personal data may be transferred to the USA as a third country. The EU standard contractual clauses pursuant to Art. 46 para. 2 lit. c GDPR are used as a suitable guarantee. The storage period depends on the respective processing purpose; personal data is deleted as soon as it is no longer required to achieve the respective purpose or a statutory retention period expires. Further information on data protection at Vercel can be found at: <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">https://vercel.com/legal/privacy-policy</a></p>
+
+        <h2>4. What else is important</h2>
+        <p>Finally, we would like to inform you in detail about your rights and how you will be informed about changes to data protection requirements.</p>
+
+        <h3>4.1 Your rights in detail</h3>
+        <h4>4.1.1 Right to information in accordance with Art. 15 GDPR</h4>
+        <p>You can request information about whether your personal data is being processed. If this is the case, you can request further information on the type and manner of processing. A detailed list can be found in Art. 15 para. 1 lit. a to h GDPR.</p>
+        <h4>4.1.2 Right to rectification in accordance with Art. 16 GDPR</h4>
+        <p>This right includes the correction of incorrect data and the completion of incomplete personal data.</p>
+        <h4>4.1.3 Right to erasure in accordance with Art. 17 GDPR</h4>
+        <p>This so-called &lsquo;right to be forgotten&rsquo; gives you the right, under certain conditions, to request the deletion of personal data by the controller. This is generally the case if the purpose of the data processing no longer applies, if consent has been withdrawn or the initial processing took place without a legal basis. A detailed list of reasons can be found in Art. 17 para. 1 lit. a to f GDPR. This &ldquo;right to be forgotten&rdquo; also corresponds to the controller&rsquo;s obligation under Art. 17 para. 2 GDPR to take reasonable steps to ensure that the data is generally erased.</p>
+        <h4>4.1.4 Right to restriction of processing in accordance with Art. 18 GDPR</h4>
+        <p>This right is subject to the conditions set out in Art. 18 para. 1 lit. a to d.</p>
+        <h4>4.1.5 Right to data portability in accordance with Art. 20 GDPR</h4>
+        <p>This regulates the basic right to receive your own data in a commonly used form and to transfer it to another controller. However, this only applies to data processed on the basis of consent or a contract in accordance with Art. 20 (1) (a) and (b) and insofar as this is technically feasible.</p>
+        <h4>4.1.6 Right to object pursuant to Art. 21 GDPR</h4>
+        <p>In principle, you can object to the processing of your personal data. This applies in particular if your interest in objecting outweighs the legitimate interest of the controller in the processing and if the processing relates to direct marketing and/or profiling.</p>
+        <h4>4.1.7 Right to &ldquo;individual decision-making&rdquo; pursuant to Art. 22 GDPR</h4>
+        <p>In principle, you have the right not to be subject to a decision based solely on automated processing (including profiling) which produces legal effects concerning you or similarly significantly affects you. However, this right is also restricted and supplemented by Art. 22 (2) and (4) GDPR.</p>
+        <h4>4.1.8 Further rights</h4>
+        <p>The GDPR contains comprehensive rights to inform third parties about whether or how you have asserted rights under Art. 16, 17, 18 GDPR. However, this only applies insofar as this is possible or feasible with reasonable effort.</p>
+        <p>We would like to take this opportunity to draw your attention once again to your right to withdraw your consent in accordance with Art. 7 (3) GDPR. However, this does not affect the lawfulness of the processing carried out up to that point.</p>
+        <p>We would also like to draw your attention to your rights under &sect;&sect; 32 ff. BDSG, which, however, are largely congruent with the rights just described.</p>
+        <h4>4.1.9 Right to lodge a complaint pursuant to Art. 77 GDPR</h4>
+        <p>You also have the right to lodge a complaint with a data protection supervisory authority if you consider that the processing of personal data relating to you infringes this Regulation.</p>
+
+        <h2>5. What if the GDPR is abolished tomorrow or other changes take place?</h2>
+        <p>The current status of this Privacy Policy is {UPDATED}. From time to time it is necessary to adapt the content of the Privacy Policy in order to react to actual and legal changes. We therefore reserve the right to amend this Privacy Policy at any time. We will publish the amended version in the same place and recommend that you read the Privacy Policy regularly.</p>
+
+        <p class="legal-credit">Created with the kind support of <a href="https://www.dieter-datenschutz.de/" target="_blank" rel="noopener noreferrer">Dieter macht den Datenschutz</a>.</p>
+      </article>
+    </main>
+    <Footer />
+  </div>
+</Layout>
+
+<style>
+  .legal h2 { margin-top: var(--space-8); }
+  .legal h3 { margin-top: var(--space-6); }
+  .legal h4 { margin-top: var(--space-5); margin-bottom: var(--space-3); }
+  .legal-updated { color: var(--fg-muted); font-size: var(--text-sm); margin-bottom: var(--space-6); }
+  .legal ul, .legal ol { margin: 0 0 var(--space-5); padding-left: var(--space-5); max-width: var(--measure); }
+  .legal li { margin-bottom: var(--space-2); }
+  .legal address { font-style: normal; line-height: var(--leading-relaxed); margin-bottom: var(--space-5); }
+  .legal a { color: var(--fg); text-decoration: underline; text-underline-offset: 2px; overflow-wrap: anywhere; }
+  .legal a:hover { color: var(--fg-muted); }
+  .legal-credit { margin-top: var(--space-8); color: var(--fg-muted); font-size: var(--text-sm); }
+</style>
