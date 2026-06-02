@@ -25,15 +25,22 @@ const { title = 'Johannes Homeier', description = 'Product engineer & tech lead 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content={description} />
   <title>{title}</title>
-  <!-- Apply saved theme before first paint — no flash. Mood is fixed neutral. -->
+  <!-- Apply saved theme + local-time greeting before first paint - no flash. -->
   <script is:inline>
     (function () {
+      var root = document.documentElement;
       var pref = localStorage.getItem('jh-theme') || 'auto';
       var t = pref === 'auto'
         ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
         : pref;
-      document.documentElement.setAttribute('data-theme', t);
-      document.documentElement.setAttribute('data-mood', 'neutral');
+      root.setAttribute('data-theme', t);
+      root.setAttribute('data-mood', 'neutral');
+      // Reveal the greeting that matches the visitor's local hour (see .greet CSS).
+      var h = new Date().getHours();
+      root.setAttribute('data-daypart',
+        h >= 5 && h < 10 ? 'morning' :
+        h >= 10 && h < 17 ? 'day' :
+        h >= 17 && h < 22 ? 'evening' : 'night');
     })();
   </script>
   <link rel="icon" href="/monogram.svg" />
