@@ -2,6 +2,14 @@
 import '../styles/colors-and-type.css';
 import '../styles/kit.css';
 import '../styles/site.css';
+// Self-hosted display face (replaces Google Fonts). Latin subset, weights
+// that match the previous Google request.
+import '@fontsource/space-grotesk/latin-400.css';
+import '@fontsource/space-grotesk/latin-500.css';
+import '@fontsource/space-grotesk/latin-600.css';
+import '@fontsource/space-grotesk/latin-700.css';
+import Analytics from '@vercel/analytics/astro';
+import SpeedInsights from '@vercel/speed-insights/astro';
 
 interface Props {
   title?: string;
@@ -29,12 +37,11 @@ const { title = 'Johannes Homeier', description = 'Product engineer & tech lead 
     })();
   </script>
   <link rel="icon" href="/monogram.svg" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" />
   <slot name="head" />
 </head>
 <body>
   <slot />
+  <Analytics />
+  <SpeedInsights />
 </body>
 </html>

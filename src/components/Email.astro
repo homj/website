@@ -1,0 +1,26 @@
+---
+// Renders an email address that reads correctly for humans and screen readers
+// but is hard to harvest: the contiguous string and "mailto:" never appear in
+// the HTML source. A tiny script assembles the real mailto link on load. With
+// JS off, the address still displays (just not clickable), which keeps the
+// imprint legally readable.
+import { CONTROLLER } from '../data/legal';
+
+interface Props {
+  address?: string;
+  class?: string;
+}
+const { address = CONTROLLER.email, class: className } = Astro.props;
+const [user, domain] = address.split('@');
+const labels = domain.split('.');
+---
+<a class:list={['email', className]} data-email><span>{user}</span>&#64;{labels.map((label, i) => (
+  <>{i > 0 && <Fragment set:html="&#46;" />}<span>{label}</span></>
+))}</a>
+
+<script>
+  for (const el of document.querySelectorAll<HTMLAnchorElement>('a[data-email]')) {
+    const addr = (el.textContent ?? '').replace(/\s+/g, '');
+    if (addr.includes('@')) el.href = 'mailto:' + addr;
+  }
+</script>

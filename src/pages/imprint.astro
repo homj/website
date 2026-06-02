@@ -1,0 +1,67 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { CONTROLLER } from '../data/legal';
+import Email from '../components/Email.astro';
+---
+
+<Layout title="Imprint - Johannes Homeier" description="Imprint and legal information for this website.">
+  <div class="site">
+    <Nav />
+    <main>
+      <article class="page wrap detail legal">
+        <a class="backlink" href="/">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m12 19-7-7 7-7"/>
+            <path d="M19 12H5"/>
+          </svg>
+          Back
+        </a>
+
+        <h1>Imprint</h1>
+
+        <h2>Information pursuant to &sect; 5 DDG</h2>
+        <address>
+          {CONTROLLER.name}<br />
+          {CONTROLLER.street}<br />
+          {CONTROLLER.postalCode} {CONTROLLER.city}<br />
+          {CONTROLLER.country}
+        </address>
+
+        <h2>Contact</h2>
+        <p>Email: <Email /></p>
+
+        <h2>VAT identification number</h2>
+        <p>VAT identification number pursuant to &sect; 27a of the German VAT Act (UStG):<br />{CONTROLLER.vatId}</p>
+
+        <h2>Responsible for the content pursuant to &sect; 18 (2) MStV</h2>
+        <address>
+          {CONTROLLER.name}<br />
+          {CONTROLLER.street}<br />
+          {CONTROLLER.postalCode} {CONTROLLER.city}
+        </address>
+
+        <h2>Consumer dispute resolution / universal arbitration board</h2>
+        <p>We are not willing or obliged to participate in dispute resolution proceedings before a consumer arbitration board.</p>
+
+        <h2>Liability for contents</h2>
+        <p>As the operator of this website (a service provider within the meaning of &sect; 7 (1) DDG), we are responsible for our own content on these pages in accordance with the general laws. According to &sect;&sect; 8 to 10 DDG, however, we are not obliged to monitor transmitted or stored third-party information or to investigate circumstances that indicate illegal activity. Obligations to remove or block the use of information under general legislation remain unaffected. However, liability in this respect is only possible from the point in time at which knowledge of a specific infringement of the law becomes known. If we become aware of any such infringements, we will remove the relevant content immediately.</p>
+
+        <h2>Liability for links</h2>
+        <p>Our website contains links to external third-party websites over whose content we have no influence. We therefore cannot accept any liability for this third-party content. The respective provider or operator of the linked pages is always responsible for their content. The linked pages were checked for possible legal violations at the time of linking. Illegal content was not recognizable at the time of linking. However, permanent monitoring of the content of the linked pages is not reasonable without concrete evidence of a legal violation. If we become aware of any infringements, we will remove such links immediately.</p>
+
+        <h2>Copyright</h2>
+        <p>The content and works created by the site operator on these pages are subject to copyright law. Duplication, processing, distribution and any form of commercialization of such material beyond the scope of the copyright law shall require the prior written consent of its respective author or creator. Insofar as the content on this site was not created by the operator, the copyrights of third parties are respected. Should you nevertheless become aware of a copyright infringement, please inform us accordingly. If we become aware of any infringements, we will remove such content immediately.</p>
+      </article>
+    </main>
+    <Footer />
+  </div>
+</Layout>
+
+<style>
+  .legal h1 { font-size: 1.375rem; }
+  .legal h2 { font-size: var(--text-md); margin-top: var(--space-7); }
+  .legal p, .legal address { max-width: none; }
+  .legal address { font-style: normal; line-height: var(--leading-relaxed); margin-bottom: var(--space-5); }
+</style>
