@@ -9,7 +9,6 @@ const ICON_PATHS: Record<string, string> = {
   twitter: '<path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>',
   linkedin: '<path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/>',
   arrowUpRight: '<path d="M7 7h10v10"/><path d="M7 17 17 7"/>',
-  externalLink: '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
   arrowRight: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
   arrowLeft: '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
   chevronRight: '<path d="m9 18 6-6-6-6"/>',
@@ -303,7 +302,7 @@ export function ProjRow({ title, desc, meta, href, onClick }: ProjRowProps) {
       <span className="rrow-end">
         {meta && <span className="rrow-meta">{meta}</span>}
         {external && (
-          <Icon name="externalLink" size={15} strokeWidth={2}
+          <Icon name="arrowUpRight" size={15} strokeWidth={2}
             style={{ color: 'var(--fg-faint)', flex: 'none' }} />
         )}
       </span>
