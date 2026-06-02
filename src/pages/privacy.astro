@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import { CONTROLLER, LEGAL_UPDATED } from '../data/legal';
+import Email from '../components/Email.astro';
 ---
 
 <Layout title="Privacy Policy — Johannes Homeier" description="How personal data is processed on this website.">
@@ -43,7 +44,7 @@ import { CONTROLLER, LEGAL_UPDATED } from '../data/legal';
           {CONTROLLER.name}<br />
           {CONTROLLER.street}<br />
           {CONTROLLER.postalCode} {CONTROLLER.city}<br />
-          {CONTROLLER.email}
+          <Email />
         </address>
 
         <h3>2.4 How data is generally processed on this website</h3>

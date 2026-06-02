@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import { CONTROLLER } from '../data/legal';
+import Email from '../components/Email.astro';
 ---
 
 <Layout title="Imprint — Johannes Homeier" description="Imprint and legal information for this website.">
@@ -29,7 +30,7 @@ import { CONTROLLER } from '../data/legal';
         </address>
 
         <h2>Contact</h2>
-        <p>Email: {CONTROLLER.email}</p>
+        <p>Email: <Email /></p>
 
         <h2>VAT identification number</h2>
         <p>VAT identification number pursuant to &sect; 27a of the German VAT Act (UStG):<br />{CONTROLLER.vatId}</p>
