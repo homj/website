@@ -226,10 +226,8 @@
   margin: 0;
 }
 .section-updated {
-  font-family: var(--font-mono);
   font-size: var(--text-sm);
   color: var(--fg-muted);
-  font-variant-numeric: tabular-nums;
   margin: calc(var(--space-3) * -1) 0 var(--space-5);
 }
 
