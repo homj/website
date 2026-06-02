@@ -302,6 +302,9 @@ export function Contact() {
   const [sending, setSending] = React.useState(false);
   const [error, setError] = React.useState('');
 
+  const CAPTCHA_WAIT = 'Hang on, finishing the bot check...';
+  const CAPTCHA_FAILED = 'The bot check could not load. Please reload the page and try again.';
+
   const emailRef = React.useRef<HTMLInputElement>(null);
   const captchaRef = React.useRef<HTMLDivElement>(null);
 
@@ -343,9 +346,7 @@ export function Contact() {
     const trimmed = note.trim();
     if (!trimmed || sending) return;
     if (FRC_SITEKEY && !captcha) {
-      setError(captchaFailed
-        ? 'The bot check couldn’t load. Please reload the page and try again.'
-        : 'Hang on - finishing the bot check…');
+      setError(captchaFailed ? CAPTCHA_FAILED : CAPTCHA_WAIT);
       return;
     }
     setSending(true);
@@ -371,6 +372,15 @@ export function Contact() {
       setSending(false);
     }
   };
+
+  // Keep the captcha wait message from lingering: once the token resolves,
+  // clear it; if the widget errored, swap it for the failure note. Never
+  // auto-sends - the visitor stays in control and clicks Send when ready.
+  React.useEffect(() => {
+    if (captcha) setError(prev => (prev === CAPTCHA_WAIT ? '' : prev));
+    else if (captchaFailed) setError(prev => (prev === CAPTCHA_WAIT ? CAPTCHA_FAILED : prev));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [captcha, captchaFailed]);
 
   // First Enter reveals the optional reply-to field; a second one sends.
   const onNoteKey = (e: React.KeyboardEvent) => {
