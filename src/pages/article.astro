@@ -2,9 +2,22 @@
 import Layout from '../layouts/Layout.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import { articleJsonLd } from '../data/seo';
+
+const description = 'Details aren’t a finishing step - they are the product. Why care is legible, and the work is mostly noticing.';
+const jsonLd = articleJsonLd({
+  title: 'Details are the product',
+  description,
+  path: '/article/',
+  datePublished: '2026-02-14',
+});
 ---
 
-<Layout title="Details are the product - Johannes Homeier">
+<Layout
+  title="Details are the product - Johannes Homeier"
+  description={description}
+  type="article"
+  jsonLd={jsonLd}>
   <div class="site">
     <Nav />
     <main>

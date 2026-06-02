@@ -194,6 +194,17 @@
   .wash { animation: none; }
 }
 
+/* visually-hidden, still read by screen readers and indexed (e.g. the h1) */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ---------- time-of-day greeting ----------
    Variants render statically; reveal the one matching <html data-daypart>
    (set before first paint in Layout.astro, so it never flashes). With no JS,

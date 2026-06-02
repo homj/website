@@ -10,12 +10,29 @@ import '@fontsource/space-grotesk/latin-600.css';
 import '@fontsource/space-grotesk/latin-700.css';
 import Analytics from '@vercel/analytics/astro';
 import SpeedInsights from '@vercel/speed-insights/astro';
+import { SITE } from '../data/seo';
 
 interface Props {
   title?: string;
   description?: string;
+  image?: string;
+  type?: 'website' | 'article' | 'profile';
+  jsonLd?: object | object[];
+  noindex?: boolean;
 }
-const { title = 'Johannes Homeier', description = 'Product engineer & tech lead based in Regensburg.' } = Astro.props;
+const {
+  title = SITE.title,
+  description = SITE.description,
+  image = '/og.png',
+  type = 'website',
+  jsonLd,
+  noindex = false,
+} = Astro.props;
+
+const site = Astro.site ?? new URL(SITE.url);
+const canonical = new URL(Astro.url.pathname, site).href;
+const ogImage = new URL(image, site).href;
+const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 ---
 
 <!DOCTYPE html>
@@ -23,8 +40,32 @@ const { title = 'Johannes Homeier', description = 'Product engineer & tech lead 
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content={description} />
   <title>{title}</title>
+  <meta name="description" content={description} />
+  <meta name="author" content="Johannes Homeier" />
+  <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
+  <link rel="canonical" href={canonical} />
+  <meta name="theme-color" content="#FBF9F4" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#16161A" media="(prefers-color-scheme: dark)" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content={type} />
+  <meta property="og:site_name" content={SITE.name} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:locale" content={SITE.locale} />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Johannes Homeier - Product engineer & tech lead" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImage} />
+  <meta name="twitter:creator" content={SITE.twitter} />
   <!-- Apply saved theme + local-time greeting before first paint - no flash. -->
   <script is:inline>
     (function () {
@@ -43,7 +84,13 @@ const { title = 'Johannes Homeier', description = 'Product engineer & tech lead 
         h >= 17 && h < 22 ? 'evening' : 'night');
     })();
   </script>
-  <link rel="icon" href="/monogram.svg" />
+  <link rel="icon" href="/monogram.svg" type="image/svg+xml" />
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  {ld.map((obj) => (
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(obj)} />
+  ))}
   <slot name="head" />
 </head>
 <body>
