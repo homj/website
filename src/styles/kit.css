@@ -71,7 +71,7 @@
 .mood-dot:hover { transform: scale(1.15); }
 
 /* ---------- main ---------- */
-main { flex: 1; padding-block: var(--space-6) var(--space-8); }
+main { flex: 1; padding-block: calc(var(--space-6) * 2) var(--space-8); }
 .lead { font-size: var(--text-md); color: var(--fg); margin-bottom: var(--space-7); }
 .section-label {
   font-family: var(--font-sans);
