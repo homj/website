@@ -251,7 +251,7 @@
 .section-updated {
   font-size: var(--text-sm);
   color: var(--fg-muted);
-  margin: calc(var(--space-3) * -1) 0 var(--space-5);
+  margin: var(--space-3) 0 var(--space-6);
 }
 
 /* ---------- experience (kit Work-style rows + sliding highlight) ----------
