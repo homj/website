@@ -184,23 +184,22 @@ export function Personal() {
       <div className="section-head"><h2 id="personal-heading" className="kick">Personal</h2></div>
       <p className="section-updated">updated June 02, 2026</p>
       <p className="personal-text measure">
-        Life is full at the moment. We&rsquo;re only a few days away from becoming parents for
-        the first time, and I can&rsquo;t tell you how excited I am.
+        I&rsquo;m still thinking back to our trip to Japan last year&hellip; I&rsquo;ve been
+        learning the language for a bit now and hope to go back in November, this time as a
+        family.
       </p>
       <p className="personal-text measure">
-        And I&rsquo;m still thinking back to our trip to Japan last year&hellip; I&rsquo;ve been
-        learning the language for a bit now and hope to go back in November, this time as a
-        family. In the same spirit, my sister recently gifted me{' '}
+         In the same spirit, my sister recently gifted me{' '}
         <a href="https://www.scorpio-verlag.de/Buecher/579/DerJapanischeGarten.html"
           target="_blank" rel="noreferrer">Der Japanische Garten</a>, a quiet story about
         ikigai. It&rsquo;s good to be reading again, even if it&rsquo;s just a small book.
       </p>
       <p className="personal-text measure">
         And between all of it, I finally made Broccoli Casserole again this
-        week. One of my partner&rsquo;s favorites.
+        week! One of my partner&rsquo;s favorites.
       </p>
       <p className="personal-text personal-aside measure">
-        (I won&rsquo;t brag, but it slapped)
+        (I don&rsquo;t want to brag, but it slapped)
       </p>
     </section>
   );
