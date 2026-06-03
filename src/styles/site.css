@@ -292,6 +292,11 @@ button.rrow.exp-head {
 @media (max-width: 600px) {
   .exp-head .exp-co { display: block; margin-top: 2px; font-size: var(--text-sm); }
   .exp-head .exp-sep { display: none; }
+
+  /* footer: stack copyright above the links and let the links wrap, so the
+     row doesn't overflow on narrow screens */
+  .foot { flex-direction: column; align-items: flex-start; gap: var(--space-4); }
+  .foot-right { flex-wrap: wrap; gap: var(--space-3) var(--space-4); }
 }
 /* align the description under the row title */
 .exp-body p {
