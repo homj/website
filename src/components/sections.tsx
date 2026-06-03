@@ -1,5 +1,5 @@
 import React from 'react';
-import { Icon, RowList, ExpRow, ProjRow, SOCIALS } from './ui';
+import { ExpRow, Icon, ProjRow, RowList, SOCIALS } from './ui';
 
 // ── DotField — interactive monochrome canvas ─────────────────────────────────
 
@@ -182,7 +182,7 @@ export function Personal() {
   return (
     <section className="section" aria-labelledby="personal-heading">
       <div className="section-head"><h2 id="personal-heading" className="kick">Personal</h2></div>
-      <p className="section-updated">last updated: June 2026</p>
+        <p className="section-updated">updated June 02, 2026</p>
       <p className="personal-text measure">
         Life is full at the moment. We&rsquo;re only a few days away from becoming parents for
         the first time, and I can&rsquo;t tell you how excited I am.
@@ -453,14 +453,13 @@ export function Home({ heroStyle }: HomeProps) {
           <h1 className="sr-only">Johannes Homeier - product engineer and tech lead based in Regensburg, Germany</h1>
           <div className="measure intro">
             <p className="lead">
-              <Greeting lang="en" />, I&rsquo;m Johannes - a product engineer and tech lead based in Regensburg.
+              <Greeting lang="en" />, I&rsquo;m Johannes - a product engineer and tech lead based in Regensburg, Germany.
               I&rsquo;ve spent the last 13 years building software, shaping interfaces, and
               leading small teams.
             </p>
             <p className="lead">
-              I studied Media Informatics &amp; Information Science with a strong focus on
-              Human-Computer Interaction and Usability Engineering, so I tend to bridge design,
-              engineering, and what users actually need rather than pick a side.
+              I studied Media Informatics &amp; Information Science with a strong focus on Human-Computer Interaction (HCI) and usability engineering.
+              I see myself as someone who bridges user needs, design and engineering rather than pick a side.
             </p>
             <p className="lead">I care about the details most people skip.</p>
             <Signature />

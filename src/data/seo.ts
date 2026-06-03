@@ -3,7 +3,7 @@
 export const SITE = {
   url: 'https://johanneshomeier.com',
   name: 'Johannes Homeier',
-  title: 'Johannes Homeier - Product Engineer & Tech Lead',
+  title: 'Johannes Homeier',
   description:
     'Johannes Homeier is a product engineer and tech lead based in Regensburg, Germany - 13+ years building software, shaping interfaces, and leading small teams.',
   locale: 'en_US',
