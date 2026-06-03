@@ -264,6 +264,7 @@ button.rrow.exp-head {
   font: inherit;
   cursor: pointer;
   width: 100%;
+  text-align: left;
 }
 .rrow-title { letter-spacing: -0.01em; }
 .exp-co { color: var(--fg-muted); font-weight: var(--weight-normal); }
@@ -285,6 +286,13 @@ button.rrow.exp-head {
 }
 .exp.open .exp-body { grid-template-rows: 1fr; }
 .exp-body > .exp-inner { overflow: hidden; }
+
+/* On mobile, stack the role under the company (like the project title/desc)
+   instead of letting "Company · Role" wrap awkwardly mid-phrase. */
+@media (max-width: 600px) {
+  .exp-head .exp-co { display: block; margin-top: 2px; font-size: var(--text-sm); }
+  .exp-head .exp-sep { display: none; }
+}
 /* align the description under the row title */
 .exp-body p {
   margin: var(--space-2) 0 var(--space-4);
