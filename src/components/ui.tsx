@@ -261,7 +261,7 @@ export function ExpRow({ role, co, meta, open, onToggle, children }: ExpRowProps
           <span className="rrow-main">
             <span className="rrow-title">
               {co || role}
-              {co && <span className="exp-co"> · {role}</span>}
+              {co && <span className="exp-co"><span className="exp-sep" aria-hidden="true"> · </span>{role}</span>}
             </span>
           </span>
         </span>
