@@ -249,9 +249,9 @@
   margin: 0;
 }
 .section-updated {
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   color: var(--fg-muted);
-  margin: 0;
+  margin: var(--space-4) 0 var(--space-6);
 }
 
 /* ---------- experience (kit Work-style rows + sliding highlight) ----------
