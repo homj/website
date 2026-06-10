@@ -151,8 +151,8 @@ function Greeting({ lang }: { lang: 'en' | 'ja' }) {
 export function Signature() {
   return (
     <p className="signature" lang="ja"
-      aria-label="Watashi wa Yo desu. Demo hontou wa Mi desu.">
-      <Greeting lang="ja" />、私は<span className="kana">よ</span>です。でも本当は<span className="kana">み</span>です。
+      aria-label="Boku wa Yo desu. Demo hontou wa Mi desu.">
+      <Greeting lang="ja" />、僕は<span className="kana">よ</span>です。でも本当は<span className="kana">み</span>です。
     </p>
   );
 }
