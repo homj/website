@@ -152,7 +152,7 @@ export function Signature() {
   return (
     <p className="signature" lang="ja"
       aria-label="Boku wa Yo desu. Demo hontou wa Mi desu.">
-      <Greeting lang="ja" />、僕は<span className="kana">よ</span>です。でも本当は<span className="kana">み</span>です。
+      <Greeting lang="ja" />、<ruby>僕<rt>ぼく</rt></ruby>は<span className="kana">よ</span>です。でも<ruby>本当<rt>ほんとう</rt></ruby>は<span className="kana">み</span>です。
     </p>
   );
 }

@@ -231,6 +231,7 @@
 .signature .kana {
   color: var(--fg);
 }
+.signature rt { font-size: 0.45em; color: var(--fg-muted); user-select: none; }
 
 /* ---------- section headings ---------- */
 .section-head {
