@@ -1,13 +1,13 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
-import vercel from '@astrojs/vercel/serverless';
+import vercel from '@astrojs/vercel';
 
 export default defineConfig({
   site: 'https://johanneshomeier.com',
   integrations: [react()],
-  // hybrid keeps every page static and prerendered; only routes that opt out
-  // with `export const prerender = false` (the /api/contact endpoint) run
-  // server-side as Vercel serverless functions.
-  output: 'hybrid',
+  // Default 'static' output prerenders every page; the /api/contact route
+  // opts out with `export const prerender = false` and runs as a Vercel
+  // serverless function. This replaced Astro 4's hybrid output mode, which
+  // was removed in Astro 5.
   adapter: vercel(),
 });

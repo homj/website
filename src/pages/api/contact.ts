@@ -14,17 +14,17 @@ function env(key: string): string | undefined {
   return proc?.env?.[key] ?? (import.meta.env as Record<string, string | undefined>)[key];
 }
 
-const MAX_LEN = 5000;
-const EMAIL_MAX = 254; // RFC 5321 max length of an email address
+export const MAX_LEN = 5000;
+export const EMAIL_MAX = 254; // RFC 5321 max length of an email address
 // Reject empty domain labels (e.g. `a@b..com`) and require at least one dot.
-const EMAIL_RE = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
+export const EMAIL_RE = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 const FRC_VERIFY_URL = 'https://global.frcapi.com/api/v2/captcha/siteverify';
 const DEFAULT_FROM = 'Johannes Homeier <no-reply@johanneshomeier.com>';
 
 // Strip control characters that would break Postgres text storage (NUL bytes
 // are rejected outright) or leak into email headers. The note keeps tabs and
 // newlines; an address keeps neither. Also trims surrounding whitespace.
-function clean(input: string, keepNewlines = false): string {
+export function clean(input: string, keepNewlines = false): string {
   let out = '';
   for (const ch of input) {
     const code = ch.codePointAt(0)!;
@@ -41,11 +41,65 @@ function dbUrl(): string | undefined {
     ?? env('POSTGRES_URL_NON_POOLING') ?? env('DATABASE_URL_UNPOOLED');
 }
 
+// Same-origin CSRF guard. Browsers always attach an Origin header to a
+// cross-origin-capable POST like this one, so the real form's requests will
+// always carry either a matching Origin or none at all. A request with no
+// Origin header is allowed through - non-browser clients carry no CSRF risk,
+// and the captcha (when configured) still gates them. A request with an
+// Origin that is neither the canonical site nor the current deployment's own
+// preview origin is rejected.
+function isAllowedOrigin(request: Request): boolean {
+  const origin = request.headers.get('origin');
+  if (!origin) return true;
+  const canonical = 'https://johanneshomeier.com';
+  const vercelUrl = env('VERCEL_URL');
+  const deploymentOrigin = vercelUrl ? `https://${vercelUrl}` : undefined;
+  return origin === canonical || origin === deploymentOrigin;
+}
+
+// Best-effort per-instance rate limit: 5 requests / 10 minutes per client IP,
+// fixed window. This state resets on every cold start and is scoped to a
+// single serverless instance, so it is defense in depth against casual
+// abuse - not a hard guarantee against distributed clients. The Friendly
+// Captcha gate is the primary bot control when configured.
+const RATE_LIMIT_MAX = 5;
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
+const rateLimitMap = new Map<string, { count: number; windowStart: number }>();
+
+function clientIp(request: Request): string {
+  const forwarded = request.headers.get('x-forwarded-for');
+  return forwarded ? forwarded.split(',')[0].trim() : 'unknown';
+}
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  // Opportunistic pruning of expired windows so the map cannot grow
+  // unboundedly on a long-lived instance.
+  for (const [key, entry] of rateLimitMap) {
+    if (now - entry.windowStart > RATE_LIMIT_WINDOW_MS) rateLimitMap.delete(key);
+  }
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
+    rateLimitMap.set(ip, { count: 1, windowStart: now });
+    return false;
+  }
+  entry.count += 1;
+  return entry.count > RATE_LIMIT_MAX;
+}
+
 export const POST: APIRoute = async ({ request }) => {
   const resendKey = env('RESEND_API_KEY');
   const hasDb = !!dbUrl();
   if (!hasDb && !resendKey) {
     return json({ error: 'Contact is not configured.' }, 500);
+  }
+
+  if (!isAllowedOrigin(request)) {
+    return json({ error: 'Invalid request origin.' }, 403);
+  }
+
+  if (isRateLimited(clientIp(request))) {
+    return json({ error: 'Too many requests. Please try again later.' }, 429);
   }
 
   let note = '';
@@ -178,6 +232,6 @@ async function verifyCaptcha(apiKey: string, response: string): Promise<boolean>
 function json(data: unknown, status: number): Response {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
   });
 }
