@@ -92,7 +92,7 @@ must be a declared devDependency.
 - `package-lock.json` (via npm, never by hand)
 - `src/components/ui.tsx` (ONLY the one-line handler-signature fix in step 2b — no other change)
 - `src/pages/api/contact.ts` (ONLY the export-keyword changes in step 3 — no behavior change)
-- `src/pages/api/contact.test.ts` (create)
+- `src/pages/api/_contact.test.ts` (create; underscore prefix keeps it out of Astro routing — see step 4)
 - `.github/workflows/ci.yml` (create)
 - `CLAUDE.md` (create)
 - `plans/README.md` (status row)
@@ -187,7 +187,13 @@ shows only added `export ` keywords.
 
 ### Step 4: Write the contact endpoint tests
 
-Create `src/pages/api/contact.test.ts`. There are no existing tests to model
+Create `src/pages/api/_contact.test.ts` — note the **underscore prefix**: Astro
+treats every non-underscore file under `src/pages/` as a route, so a plain
+`contact.test.ts` there breaks `astro build` (vitest imports throw during
+prerender) and would even ship as a live route. Underscore-prefixed files are
+excluded from routing by documented Astro behavior, while vitest's default
+include pattern (`**/*.test.ts`) still picks the file up, and the relative
+import stays `./contact`. There are no existing tests to model
 after; use plain Vitest style (`describe`/`it`/`expect`), 2-space indent,
 single quotes. Cover, at minimum:
 
@@ -309,7 +315,8 @@ Machine-checkable. ALL must hold:
 - [ ] `npm run test` exits 0 with ≥ 12 passing tests
 - [ ] `npm run build` exits 0
 - [ ] `node -e "const p=require('./package.json'); if(!p.devDependencies.sharp) process.exit(1)"` exits 0
-- [ ] `git diff 762e2c2..HEAD --stat -- src/` touches ONLY `src/pages/api/contact.ts`, `src/pages/api/contact.test.ts`, and `src/components/ui.tsx` (one line, step 2b)
+- [ ] `git diff 762e2c2..HEAD --stat -- src/` touches ONLY `src/pages/api/contact.ts`, `src/pages/api/_contact.test.ts`, and `src/components/ui.tsx` (one line, step 2b)
+- [ ] `npm run build` output contains NO route for the test file (`grep -ri 'contact.test' .vercel/output/ → no matches`)
 - [ ] `.github/workflows/ci.yml` and `CLAUDE.md` exist
 - [ ] `plans/README.md` status row updated
 

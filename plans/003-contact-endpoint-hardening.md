@@ -7,7 +7,7 @@
 > in `plans/README.md` — unless a reviewer dispatched you and told you they
 > maintain the index.
 >
-> **Drift check (run first)**: `git diff --stat 762e2c2..HEAD -- src/pages/api/contact.ts src/pages/api/contact.test.ts vercel.json`
+> **Drift check (run first)**: `git diff --stat 762e2c2..HEAD -- src/pages/api/contact.ts src/pages/api/_contact.test.ts vercel.json`
 > If contact.ts changed since this plan was written (plan 001 adds `export`
 > keywords — that drift is expected), compare the "Current state" excerpts
 > against the live code before proceeding; on a mismatch beyond plan 001's
@@ -68,7 +68,7 @@ sells web-security auditing (siteboard).
   break the real form.
 - Conventions: explanatory block comments above functions, 2-space indent,
   single quotes (match the existing file).
-- Test harness (from plan 001): `src/pages/api/contact.test.ts`, run with
+- Test harness (from plan 001): `src/pages/api/_contact.test.ts`, run with
   `npm run test`. Model new tests on its existing handler-invocation pattern
   (build a `Request`, call `POST({ request } as any)`, assert status + JSON).
 - Deployment facts: Vercel serverless; client IP arrives in the
@@ -91,7 +91,7 @@ sells web-security auditing (siteboard).
 
 **In scope** (the only files you should modify/create):
 - `src/pages/api/contact.ts`
-- `src/pages/api/contact.test.ts`
+- `src/pages/api/_contact.test.ts`
 - `vercel.json` (create)
 - `plans/README.md` (status row)
 
@@ -160,7 +160,7 @@ depth, not a hard guarantee):
 
 ### Step 4: Extend the test suite
 
-Add to `src/pages/api/contact.test.ts` (same mocking pattern as the existing
+Add to `src/pages/api/_contact.test.ts` (same mocking pattern as the existing
 tests; use `vi.resetModules()` + dynamic import so the limiter's module state
 is fresh per test):
 

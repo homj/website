@@ -15,8 +15,8 @@ your row when done.
 
 | Plan | Title | Priority | Effort | Depends on | Status |
 |------|-------|----------|--------|------------|--------|
-| 001  | Verification baseline (typecheck, tests, CI, CLAUDE.md, sharp devDep) | P1 | M | — | IN PROGRESS |
-| 002  | Astro upgrade past CVE-2026-54299 (4.16 → ≥6.4.6, target 7.x) + Node 22 | P1 | L | 001 | TODO |
+| 001  | Verification baseline (typecheck, tests, CI, CLAUDE.md, sharp devDep) | P1 | M | — | DONE (`2b98323` on `advisor/001-verification-baseline`; reviewed+verified, unmerged) |
+| 002  | Astro upgrade past CVE-2026-54299 (4.16 → ≥6.4.6, target 7.x) + Node 22 | P1 | L | 001 | IN PROGRESS |
 | 003  | Contact endpoint hardening (origin check, rate limit, no-store) + security headers | P1 | M | 001 | TODO |
 | 004  | Metadata consistency (JSON-LD email leak, theme-color, sitemap, 404, unused font) | P2 | S | — | TODO |
 | 005  | Hydration diet (split the page-wide island, delete dead client code) | P2 | L | 001 (do after 002) | TODO |
