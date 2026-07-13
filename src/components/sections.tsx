@@ -295,34 +295,43 @@ export function Contact() {
   );
 }
 
-// ── Home ─────────────────────────────────────────────────────────────────────
+// ── Page compositions ────────────────────────────────────────────────────────
+// The page's wrapper divs (.page.wrap > .home > .home-main) live in
+// src/pages/index.astro. These components split the old page-wide `Home` at
+// the hydration boundary: HomeStatic and Personal render without a `client:`
+// directive (server-only, zero JS), while Work and Contact are small islands.
 
-export function Home() {
+// Intro block: sr-only h1, lead paragraphs with greeting/signature, hero
+// whitespace. Static — rendered to HTML on the server, never hydrated.
+export function HomeStatic() {
   return (
-    <div className="page wrap">
-      <div className="home">
-        <div className="home-main">
-          <h1 className="sr-only">Johannes Homeier - product engineer and tech lead based in Regensburg, Germany</h1>
-          <div className="measure intro">
-            <p className="lead">
-              <Greeting lang="en" />, I&rsquo;m Johannes - a product engineer and tech lead based in Regensburg, Germany.
-              I&rsquo;ve spent the last 13 years building software, shaping interfaces, and
-              leading small teams.
-            </p>
-            <p className="lead">
-              I studied Media Informatics &amp; Information Science with a strong focus on Human-Computer Interaction (HCI) and usability engineering.
-              I see myself as someone who bridges user needs, design and engineering rather than pick a side.
-            </p>
-            <p className="lead">I care about the details most people skip.</p>
-            <Signature />
-          </div>
-          <div className="hero-space" aria-hidden="true" />
-          <Projects />
-          <Experience />
-          <Personal />
-          <Contact />
-        </div>
+    <>
+      <h1 className="sr-only">Johannes Homeier - product engineer and tech lead based in Regensburg, Germany</h1>
+      <div className="measure intro">
+        <p className="lead">
+          <Greeting lang="en" />, I&rsquo;m Johannes - a product engineer and tech lead based in Regensburg, Germany.
+          I&rsquo;ve spent the last 13 years building software, shaping interfaces, and
+          leading small teams.
+        </p>
+        <p className="lead">
+          I studied Media Informatics &amp; Information Science with a strong focus on Human-Computer Interaction (HCI) and usability engineering.
+          I see myself as someone who bridges user needs, design and engineering rather than pick a side.
+        </p>
+        <p className="lead">I care about the details most people skip.</p>
+        <Signature />
       </div>
-    </div>
+      <div className="hero-space" aria-hidden="true" />
+    </>
+  );
+}
+
+// Projects + Experience share one island: both use the RowList hover
+// highlight, and Experience adds the accordion state.
+export function Work() {
+  return (
+    <>
+      <Projects />
+      <Experience />
+    </>
   );
 }

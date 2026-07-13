@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
-import HomeMain from '../components/HomeMain';
+import { HomeStatic, Work, Personal, Contact } from '../components/sections';
 import { homeJsonLd } from '../data/seo';
 ---
 
@@ -10,7 +10,17 @@ import { homeJsonLd } from '../data/seo';
   <div class="site">
     <Nav />
     <main>
-      <HomeMain client:load />
+      <div class="page wrap">
+        <div class="home">
+          <div class="home-main">
+            <!-- No client: directive → server-rendered, zero JS shipped -->
+            <HomeStatic />
+            <Work client:visible />
+            <Personal />
+            <Contact client:visible />
+          </div>
+        </div>
+      </div>
     </main>
     <Footer />
   </div>
