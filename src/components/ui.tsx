@@ -35,27 +35,6 @@ export function Icon({ name, size = 18, strokeWidth = 2, style }: IconProps) {
   );
 }
 
-// External link with arrow — nowrap keeps the arrow glued to its label
-interface ExtProps {
-  href: string;
-  children: React.ReactNode;
-}
-export function Ext({ href, children }: ExtProps) {
-  return (
-    <a href={href} target="_blank" rel="noreferrer" style={{ whiteSpace: 'nowrap' }}>
-      {children}
-      <Icon name="arrowUpRight" size={15} strokeWidth={2.2}
-        style={{ verticalAlign: '-1px', marginLeft: '3px', opacity: 0.5 }} />
-    </a>
-  );
-}
-
-export const SOCIALS: [string, string, string][] = [
-  ['github',   'GitHub',   'https://github.com/homj'],
-  ['twitter',  'X',        'https://twitter.com/homiathome'],
-  ['linkedin', 'LinkedIn', 'https://www.linkedin.com/in/johannes-homeier/'],
-];
-
 // ── useTheme ─────────────────────────────────────────────────────────────────
 // Theme preference: 'light' | 'dark' | 'auto' (auto follows the OS). Default 'auto'.
 // MUST be used only inside a `client:only` island — it reads localStorage in the
@@ -145,26 +124,6 @@ export function ThemeMenu({ theme, setTheme }: ThemeMenuProps) {
         </div>
       )}
     </div>
-  );
-}
-
-// ── Nav ──────────────────────────────────────────────────────────────────────
-
-interface NavProps {
-  theme: string;
-  setTheme: (t: string) => void;
-}
-
-export function Nav({ theme, setTheme }: NavProps) {
-  return (
-    <header className="wrap">
-      <nav className="nav">
-        <a className="brand" href="/">Johannes Homeier</a>
-        <div className="nav-links">
-          <ThemeMenu theme={theme} setTheme={setTheme} />
-        </div>
-      </nav>
-    </header>
   );
 }
 
@@ -313,23 +272,4 @@ export function ProjRow({ title, desc, meta, href, onClick }: ProjRowProps) {
   if (onClick)
     return <button className="rrow proj-row" onClick={onClick}>{inner}</button>;
   return <div className="rrow proj-row proj-row--static">{inner}</div>;
-}
-
-// ── Footer ───────────────────────────────────────────────────────────────────
-
-export function Footer() {
-  return (
-    <footer className="wrap">
-      <div className="foot">
-        <span className="foot-copy">© 2026 · Regensburg</span>
-        <div className="foot-right">
-          <div className="foot-links">
-            {SOCIALS.map(([icon, label, href]) => (
-              <a key={icon} href={href} target="_blank" rel="noreferrer">{label}</a>
-            ))}
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
 }
