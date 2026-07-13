@@ -18,8 +18,8 @@ your row when done.
 | 001  | Verification baseline (typecheck, tests, CI, CLAUDE.md, sharp devDep) | P1 | M | — | DONE (`2b98323` on `advisor/001-verification-baseline`; reviewed+verified, unmerged) |
 | 002  | Astro upgrade past CVE-2026-54299 (4.16 → ≥6.4.6, target 7.x) + Node 22 | P1 | L | 001 | DONE (`a16a74a` tip of `advisor/002-astro-upgrade`; astro 6.4.8 — 7.x blocked by upstream Vite-8/Rolldown build bug rolldown/rolldown#8732; reviewed+verified, unmerged) |
 | 003  | Contact endpoint hardening (origin check, rate limit, no-store) + security headers | P1 | M | 001 | DONE (`51aa396` on `advisor/003-contact-hardening`; reviewed+verified, unmerged) |
-| 004  | Metadata consistency (JSON-LD email leak, theme-color, sitemap, 404, unused font) | P2 | S | — | IN PROGRESS |
-| 005  | Hydration diet (split the page-wide island, delete dead client code) | P2 | L | 001 (do after 002) | TODO |
+| 004  | Metadata consistency (JSON-LD email leak, theme-color, sitemap, 404, unused font) | P2 | S | — | DONE (`92f6b90` on `advisor/004-metadata-consistency`; sitemap already matched built canonicals — no edit needed; reviewed+verified, unmerged) |
+| 005  | Hydration diet (split the page-wide island, delete dead client code) | P2 | L | 001 (do after 002) | IN PROGRESS |
 | 006  | Accessibility fixes (accordion exposure, menu keyboard, aria-label misuse) | P2 | S | — (coordinate with 005) | TODO |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
