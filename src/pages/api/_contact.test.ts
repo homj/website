@@ -9,7 +9,11 @@ const { sendMock, neonMock } = vi.hoisted(() => ({
 }));
 
 vi.mock('resend', () => ({
-  Resend: vi.fn(() => ({ emails: { send: sendMock } })),
+  // vitest 4 requires mock implementations invoked with `new` to be
+  // constructible (a `function`, not an arrow) — same returned object.
+  Resend: vi.fn(function () {
+    return { emails: { send: sendMock } };
+  }),
 }));
 
 vi.mock('@neondatabase/serverless', () => ({
