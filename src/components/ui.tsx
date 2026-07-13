@@ -179,7 +179,7 @@ export function RowList({ children }: RowListProps) {
   const hlRef    = React.useRef<HTMLDivElement>(null);
   const curRef   = React.useRef<HTMLElement | null>(null);
 
-  const move = (e: React.MouseEvent) => {
+  const move = (e: React.SyntheticEvent<HTMLDivElement>) => {
     const hit = (e.target as HTMLElement).closest('.exp, .rrow') as HTMLElement | null;
     if (!hit || !ref.current || !ref.current.contains(hit)) return;
     const item = (hit.closest('.exp') as HTMLElement | null) || hit;

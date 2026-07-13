@@ -14,17 +14,17 @@ function env(key: string): string | undefined {
   return proc?.env?.[key] ?? (import.meta.env as Record<string, string | undefined>)[key];
 }
 
-const MAX_LEN = 5000;
-const EMAIL_MAX = 254; // RFC 5321 max length of an email address
+export const MAX_LEN = 5000;
+export const EMAIL_MAX = 254; // RFC 5321 max length of an email address
 // Reject empty domain labels (e.g. `a@b..com`) and require at least one dot.
-const EMAIL_RE = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
+export const EMAIL_RE = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 const FRC_VERIFY_URL = 'https://global.frcapi.com/api/v2/captcha/siteverify';
 const DEFAULT_FROM = 'Johannes Homeier <no-reply@johanneshomeier.com>';
 
 // Strip control characters that would break Postgres text storage (NUL bytes
 // are rejected outright) or leak into email headers. The note keeps tabs and
 // newlines; an address keeps neither. Also trims surrounding whitespace.
-function clean(input: string, keepNewlines = false): string {
+export function clean(input: string, keepNewlines = false): string {
   let out = '';
   for (const ch of input) {
     const code = ch.codePointAt(0)!;
