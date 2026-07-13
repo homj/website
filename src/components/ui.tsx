@@ -78,13 +78,29 @@ interface ThemeMenuProps {
 export function ThemeMenu({ theme, setTheme }: ThemeMenuProps) {
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef<HTMLDivElement>(null);
+  const btnRef = React.useRef<HTMLButtonElement>(null);
+  const itemRefs = React.useRef<(HTMLButtonElement | null)[]>([]);
+
+  const opts: [string, string, string][] = [
+    ['light', 'Light',  'sun'],
+    ['dark',  'Dark',   'moon'],
+    ['auto',  'System', 'monitor'],
+  ];
+  const activeIdx = opts.findIndex(([id]) => id === theme);
+
+  // Close paths that should return focus to the trigger (Escape, item selection)
+  // vs. outside-click, which should not steal focus back to the page.
+  const closeAndFocusTrigger = () => {
+    setOpen(false);
+    btnRef.current?.focus();
+  };
 
   React.useEffect(() => {
     if (!open) return;
     const onDoc = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     };
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeAndFocusTrigger(); };
     document.addEventListener('mousedown', onDoc);
     document.addEventListener('keydown', onKey);
     return () => {
@@ -93,26 +109,42 @@ export function ThemeMenu({ theme, setTheme }: ThemeMenuProps) {
     };
   }, [open]);
 
-  const opts: [string, string, string][] = [
-    ['light', 'Light',  'sun'],
-    ['dark',  'Dark',   'moon'],
-    ['auto',  'System', 'monitor'],
-  ];
+  // Move focus onto the active item (or the first) whenever the menu opens.
+  React.useEffect(() => {
+    if (open) itemRefs.current[activeIdx >= 0 ? activeIdx : 0]?.focus();
+  }, [open]);
+
+  const onMenuKeyDown = (e: React.KeyboardEvent) => {
+    const count = opts.length;
+    const current = itemRefs.current.findIndex(el => el === document.activeElement);
+    const from = current >= 0 ? current : (activeIdx >= 0 ? activeIdx : 0);
+    let next = -1;
+    if (e.key === 'ArrowDown') next = (from + 1) % count;
+    else if (e.key === 'ArrowUp') next = (from - 1 + count) % count;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = count - 1;
+    if (next >= 0) {
+      e.preventDefault();
+      itemRefs.current[next]?.focus();
+    }
+  };
+
   const cur = theme === 'auto' ? 'monitor' : theme === 'dark' ? 'moon' : 'sun';
 
   return (
     <div className="theme-menu" ref={ref}>
       <button className="ctrl-btn" aria-haspopup="menu" aria-expanded={open}
-        aria-label="Theme" onClick={() => setOpen(o => !o)}>
+        aria-label="Theme" onClick={() => setOpen(o => !o)} ref={btnRef}>
         <Icon name={cur} size={16} />
       </button>
       {open && (
-        <div className="menu" role="menu">
-          {opts.map(([id, label, icon]) => (
+        <div className="menu" role="menu" onKeyDown={onMenuKeyDown}>
+          {opts.map(([id, label, icon], i) => (
             <button key={id}
+              ref={el => { itemRefs.current[i] = el; }}
               className={'menu-item' + (theme === id ? ' is-active' : '')}
               role="menuitemradio" aria-checked={theme === id}
-              onClick={() => { setTheme(id); setOpen(false); }}>
+              onClick={() => { setTheme(id); closeAndFocusTrigger(); }}>
               <Icon name={icon} size={15} />
               <span>{label}</span>
               {theme === id && (
