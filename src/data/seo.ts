@@ -18,7 +18,6 @@ const PERSON = {
   image: `${SITE.url}/og.png`,
   jobTitle: 'Product Engineer & Tech Lead',
   description: SITE.description,
-  email: 'hello@johanneshomeier.com',
   address: { '@type': 'PostalAddress', addressLocality: 'Regensburg', addressCountry: 'DE' },
   worksFor: { '@type': 'Organization', name: 'Freelance' },
   knowsAbout: [

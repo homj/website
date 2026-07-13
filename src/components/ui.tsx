@@ -35,27 +35,6 @@ export function Icon({ name, size = 18, strokeWidth = 2, style }: IconProps) {
   );
 }
 
-// External link with arrow — nowrap keeps the arrow glued to its label
-interface ExtProps {
-  href: string;
-  children: React.ReactNode;
-}
-export function Ext({ href, children }: ExtProps) {
-  return (
-    <a href={href} target="_blank" rel="noreferrer" style={{ whiteSpace: 'nowrap' }}>
-      {children}
-      <Icon name="arrowUpRight" size={15} strokeWidth={2.2}
-        style={{ verticalAlign: '-1px', marginLeft: '3px', opacity: 0.5 }} />
-    </a>
-  );
-}
-
-export const SOCIALS: [string, string, string][] = [
-  ['github',   'GitHub',   'https://github.com/homj'],
-  ['twitter',  'X',        'https://twitter.com/homiathome'],
-  ['linkedin', 'LinkedIn', 'https://www.linkedin.com/in/johannes-homeier/'],
-];
-
 // ── useTheme ─────────────────────────────────────────────────────────────────
 // Theme preference: 'light' | 'dark' | 'auto' (auto follows the OS). Default 'auto'.
 // MUST be used only inside a `client:only` island — it reads localStorage in the
@@ -99,13 +78,29 @@ interface ThemeMenuProps {
 export function ThemeMenu({ theme, setTheme }: ThemeMenuProps) {
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef<HTMLDivElement>(null);
+  const btnRef = React.useRef<HTMLButtonElement>(null);
+  const itemRefs = React.useRef<(HTMLButtonElement | null)[]>([]);
+
+  const opts: [string, string, string][] = [
+    ['light', 'Light',  'sun'],
+    ['dark',  'Dark',   'moon'],
+    ['auto',  'System', 'monitor'],
+  ];
+  const activeIdx = opts.findIndex(([id]) => id === theme);
+
+  // Close paths that should return focus to the trigger (Escape, item selection)
+  // vs. outside-click, which should not steal focus back to the page.
+  const closeAndFocusTrigger = () => {
+    setOpen(false);
+    btnRef.current?.focus();
+  };
 
   React.useEffect(() => {
     if (!open) return;
     const onDoc = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     };
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeAndFocusTrigger(); };
     document.addEventListener('mousedown', onDoc);
     document.addEventListener('keydown', onKey);
     return () => {
@@ -114,26 +109,42 @@ export function ThemeMenu({ theme, setTheme }: ThemeMenuProps) {
     };
   }, [open]);
 
-  const opts: [string, string, string][] = [
-    ['light', 'Light',  'sun'],
-    ['dark',  'Dark',   'moon'],
-    ['auto',  'System', 'monitor'],
-  ];
+  // Move focus onto the active item (or the first) whenever the menu opens.
+  React.useEffect(() => {
+    if (open) itemRefs.current[activeIdx >= 0 ? activeIdx : 0]?.focus();
+  }, [open]);
+
+  const onMenuKeyDown = (e: React.KeyboardEvent) => {
+    const count = opts.length;
+    const current = itemRefs.current.findIndex(el => el === document.activeElement);
+    const from = current >= 0 ? current : (activeIdx >= 0 ? activeIdx : 0);
+    let next = -1;
+    if (e.key === 'ArrowDown') next = (from + 1) % count;
+    else if (e.key === 'ArrowUp') next = (from - 1 + count) % count;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = count - 1;
+    if (next >= 0) {
+      e.preventDefault();
+      itemRefs.current[next]?.focus();
+    }
+  };
+
   const cur = theme === 'auto' ? 'monitor' : theme === 'dark' ? 'moon' : 'sun';
 
   return (
     <div className="theme-menu" ref={ref}>
       <button className="ctrl-btn" aria-haspopup="menu" aria-expanded={open}
-        aria-label="Theme" onClick={() => setOpen(o => !o)}>
+        aria-label="Theme" onClick={() => setOpen(o => !o)} ref={btnRef}>
         <Icon name={cur} size={16} />
       </button>
       {open && (
-        <div className="menu" role="menu">
-          {opts.map(([id, label, icon]) => (
+        <div className="menu" role="menu" onKeyDown={onMenuKeyDown}>
+          {opts.map(([id, label, icon], i) => (
             <button key={id}
+              ref={el => { itemRefs.current[i] = el; }}
               className={'menu-item' + (theme === id ? ' is-active' : '')}
               role="menuitemradio" aria-checked={theme === id}
-              onClick={() => { setTheme(id); setOpen(false); }}>
+              onClick={() => { setTheme(id); closeAndFocusTrigger(); }}>
               <Icon name={icon} size={15} />
               <span>{label}</span>
               {theme === id && (
@@ -148,26 +159,6 @@ export function ThemeMenu({ theme, setTheme }: ThemeMenuProps) {
   );
 }
 
-// ── Nav ──────────────────────────────────────────────────────────────────────
-
-interface NavProps {
-  theme: string;
-  setTheme: (t: string) => void;
-}
-
-export function Nav({ theme, setTheme }: NavProps) {
-  return (
-    <header className="wrap">
-      <nav className="nav">
-        <a className="brand" href="/">Johannes Homeier</a>
-        <div className="nav-links">
-          <ThemeMenu theme={theme} setTheme={setTheme} />
-        </div>
-      </nav>
-    </header>
-  );
-}
-
 // ── RowList — sliding highlight between rows ─────────────────────────────────
 
 interface RowListProps {
@@ -179,7 +170,7 @@ export function RowList({ children }: RowListProps) {
   const hlRef    = React.useRef<HTMLDivElement>(null);
   const curRef   = React.useRef<HTMLElement | null>(null);
 
-  const move = (e: React.MouseEvent) => {
+  const move = (e: React.SyntheticEvent<HTMLDivElement>) => {
     const hit = (e.target as HTMLElement).closest('.exp, .rrow') as HTMLElement | null;
     if (!hit || !ref.current || !ref.current.contains(hit)) return;
     const item = (hit.closest('.exp') as HTMLElement | null) || hit;
@@ -254,9 +245,11 @@ interface ExpRowProps {
 }
 
 export function ExpRow({ role, co, meta, open, onToggle, children }: ExpRowProps) {
+  const bodyId = React.useId();
   return (
     <div className={'exp' + (open ? ' open' : '')}>
-      <button className="rrow exp-head" aria-expanded={!!open} onClick={onToggle}>
+      <button className="rrow exp-head" aria-expanded={!!open}
+        aria-controls={bodyId} onClick={onToggle}>
         <span className="rrow-lead">
           <span className="rrow-main">
             <span className="rrow-title">
@@ -272,7 +265,10 @@ export function ExpRow({ role, co, meta, open, onToggle, children }: ExpRowProps
           </span>
         </span>
       </button>
-      <div className="exp-body">
+      {/* Collapse is visual-only (grid-template-rows in CSS); aria-hidden keeps the
+          text out of the a11y tree while closed. If bios ever gain links, this must
+          become `inert` instead so those links can't be tabbed to while hidden. */}
+      <div className="exp-body" id={bodyId} role="region" aria-hidden={!open}>
         <div className="exp-inner">{children}</div>
       </div>
     </div>
@@ -313,23 +309,4 @@ export function ProjRow({ title, desc, meta, href, onClick }: ProjRowProps) {
   if (onClick)
     return <button className="rrow proj-row" onClick={onClick}>{inner}</button>;
   return <div className="rrow proj-row proj-row--static">{inner}</div>;
-}
-
-// ── Footer ───────────────────────────────────────────────────────────────────
-
-export function Footer() {
-  return (
-    <footer className="wrap">
-      <div className="foot">
-        <span className="foot-copy">© 2026 · Regensburg</span>
-        <div className="foot-right">
-          <div className="foot-links">
-            {SOCIALS.map(([icon, label, href]) => (
-              <a key={icon} href={href} target="_blank" rel="noreferrer">{label}</a>
-            ))}
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
 }

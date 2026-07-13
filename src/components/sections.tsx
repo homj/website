@@ -1,128 +1,5 @@
 import React from 'react';
-import { ExpRow, Icon, ProjRow, RowList, SOCIALS } from './ui';
-
-// ── DotField — interactive monochrome canvas ─────────────────────────────────
-
-export function DotField() {
-  const ref = React.useRef<HTMLCanvasElement>(null);
-
-  React.useEffect(() => {
-    const canvas = ref.current!;
-    const ctx = canvas.getContext('2d')!;
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
-    let raf = 0, w = 0, h = 0;
-    let dots: { x: number; y: number }[] = [];
-    const mouse = { x: -9999, y: -9999 };
-    const inkOf = () =>
-      getComputedStyle(document.documentElement).getPropertyValue('--fg').trim() || '#000';
-    let ink = inkOf();
-
-    function build() {
-      const rect = canvas.getBoundingClientRect();
-      w = rect.width; h = rect.height;
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      canvas.width  = w * dpr;
-      canvas.height = h * dpr;
-      ctx.scale(dpr, dpr);
-      const gap = 24;
-      dots = [];
-      const ox = (w % gap) / 2 + gap / 2;
-      for (let y = gap / 2; y < h; y += gap)
-        for (let x = ox; x < w; x += gap)
-          dots.push({ x, y });
-    }
-
-    function draw() {
-      ctx.clearRect(0, 0, w, h);
-      const R = 130;
-      for (const d of dots) {
-        const dx   = d.x - mouse.x, dy = d.y - mouse.y;
-        const dist = Math.hypot(dx, dy) || 1;
-        const f    = Math.max(0, 1 - dist / R);
-        const r    = 1 + f * 2.4;
-        const off  = f * 7;
-        const nx   = d.x - (dx / dist) * off;
-        const ny   = d.y - (dy / dist) * off;
-        ctx.globalAlpha = 0.16 + f * 0.7;
-        ctx.beginPath();
-        ctx.arc(nx, ny, r, 0, Math.PI * 2);
-        ctx.fillStyle = ink;
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-    }
-
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    function loop() { draw(); raf = requestAnimationFrame(loop); }
-    build(); draw();
-    if (!reduce) loop();
-
-    const onMove  = (e: PointerEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = e.clientX - rect.left;
-      mouse.y = e.clientY - rect.top;
-    };
-    const onLeave  = () => { mouse.x = -9999; mouse.y = -9999; };
-    const onResize = () => { build(); draw(); };
-    const obs = new MutationObserver(() => { ink = inkOf(); draw(); });
-    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-    window.addEventListener('pointermove', onMove, { passive: true });
-    canvas.addEventListener('pointerleave', onLeave);
-    window.addEventListener('resize', onResize);
-
-    return () => {
-      cancelAnimationFrame(raf);
-      obs.disconnect();
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('resize', onResize);
-      canvas.removeEventListener('pointerleave', onLeave);
-    };
-  }, []);
-
-  return (
-    <div className="hero-dots" aria-hidden="true">
-      <canvas ref={ref} />
-    </div>
-  );
-}
-
-// ── Hero ─────────────────────────────────────────────────────────────────────
-
-interface HeroProps {
-  style: string;
-}
-
-export function Hero({ style }: HeroProps) {
-  if (style === 'none') return null;
-  if (style === 'whitespace')
-    return <div className="hero-space" aria-hidden="true" />;
-  if (style === 'dots') return <DotField />;
-  if (style === 'statement') {
-    return (
-      <div className="hero-statement">
-        <p>Details are the product.</p>
-      </div>
-    );
-  }
-  if (style === 'block') {
-    return (
-      <div className="hero-block" aria-hidden="true">
-        <div className="wash" />
-        <div className="wash-edge" />
-        <div className="hero-block__mark">
-          <span>Johannes</span><span>Homeier</span>
-        </div>
-      </div>
-    );
-  }
-  // band (default)
-  return (
-    <div className="hero-band" aria-hidden="true">
-      <div className="wash" />
-      <div className="wash-edge" />
-    </div>
-  );
-}
+import { ExpRow, ProjRow, RowList } from './ui';
 
 // ── Greeting (visitor's local time) ──────────────────────────────────────────
 // Every variant is rendered statically; CSS reveals the one matching
@@ -150,29 +27,9 @@ function Greeting({ lang }: { lang: 'en' | 'ja' }) {
 
 export function Signature() {
   return (
-    <p className="signature" lang="ja"
-      aria-label="Boku wa Yo desu. Demo hontou wa Mi desu.">
+    <p className="signature" lang="ja">
       <Greeting lang="ja" />、<ruby>僕<rt>ぼく</rt></ruby>は<span className="kana">よ</span>です。でも<ruby>本当<rt>ほんとう</rt></ruby>は<span className="kana">み</span>です。
     </p>
-  );
-}
-
-// ── Rail (sidebar layout) ────────────────────────────────────────────────────
-
-export function Rail() {
-  return (
-    <aside className="home-rail">
-      <div className="rail-name">Johannes Homeier</div>
-      <div className="rail-role">Product Engineer &amp; Tech Lead</div>
-      <div className="rail-loc">Regensburg, DE</div>
-      <div className="rail-socials">
-        {SOCIALS.map(([icon, label, href]) => (
-          <a key={icon} href={href} aria-label={label} target="_blank" rel="noreferrer">
-            <Icon name={icon} size={18} />
-          </a>
-        ))}
-      </div>
-    </aside>
   );
 }
 
@@ -437,39 +294,43 @@ export function Contact() {
   );
 }
 
-// ── Home ─────────────────────────────────────────────────────────────────────
+// ── Page compositions ────────────────────────────────────────────────────────
+// The page's wrapper divs (.page.wrap > .home > .home-main) live in
+// src/pages/index.astro. These components split the old page-wide `Home` at
+// the hydration boundary: HomeStatic and Personal render without a `client:`
+// directive (server-only, zero JS), while Work and Contact are small islands.
 
-interface HomeProps {
-  heroStyle: string;
+// Intro block: sr-only h1, lead paragraphs with greeting/signature, hero
+// whitespace. Static — rendered to HTML on the server, never hydrated.
+export function HomeStatic() {
+  return (
+    <>
+      <h1 className="sr-only">Johannes Homeier - product engineer and tech lead based in Regensburg, Germany</h1>
+      <div className="measure intro">
+        <p className="lead">
+          <Greeting lang="en" />, I&rsquo;m Johannes - a product engineer and tech lead based in Regensburg, Germany.
+          I&rsquo;ve spent the last 13 years building software, shaping interfaces, and
+          leading small teams.
+        </p>
+        <p className="lead">
+          I studied Media Informatics &amp; Information Science with a strong focus on Human-Computer Interaction (HCI) and usability engineering.
+          I see myself as someone who bridges user needs, design and engineering rather than pick a side.
+        </p>
+        <p className="lead">I care about the details most people skip.</p>
+        <Signature />
+      </div>
+      <div className="hero-space" aria-hidden="true" />
+    </>
+  );
 }
 
-export function Home({ heroStyle }: HomeProps) {
+// Projects + Experience share one island: both use the RowList hover
+// highlight, and Experience adds the accordion state.
+export function Work() {
   return (
-    <div className="page wrap">
-      <div className="home">
-        <Rail />
-        <div className="home-main">
-          <h1 className="sr-only">Johannes Homeier - product engineer and tech lead based in Regensburg, Germany</h1>
-          <div className="measure intro">
-            <p className="lead">
-              <Greeting lang="en" />, I&rsquo;m Johannes - a product engineer and tech lead based in Regensburg, Germany.
-              I&rsquo;ve spent the last 13 years building software, shaping interfaces, and
-              leading small teams.
-            </p>
-            <p className="lead">
-              I studied Media Informatics &amp; Information Science with a strong focus on Human-Computer Interaction (HCI) and usability engineering.
-              I see myself as someone who bridges user needs, design and engineering rather than pick a side.
-            </p>
-            <p className="lead">I care about the details most people skip.</p>
-            <Signature />
-          </div>
-          <Hero style={heroStyle || 'whitespace'} />
-          <Projects />
-          <Experience />
-          <Personal />
-          <Contact />
-        </div>
-      </div>
-    </div>
+    <>
+      <Projects />
+      <Experience />
+    </>
   );
 }
