@@ -7,6 +7,7 @@ export default defineConfig({
   integrations: [react()],
   // Default 'static' output prerenders every page; the /api/contact route
   // opts out with `export const prerender = false` and runs as a Vercel
-  // serverless function (this replaced Astro 4's `output: 'hybrid'`).
+  // serverless function. This replaced Astro 4's hybrid output mode, which
+  // was removed in Astro 5.
   adapter: vercel(),
 });
