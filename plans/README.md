@@ -75,8 +75,9 @@ Recorded so nobody re-audits them:
 - **Captcha optional when env unset**: by design for local dev (documented
   in `.env.example`); the production-misconfig risk is mitigated by plan
   003's controls instead.
-- **RowList `onFocus` typed as `React.MouseEvent`**: harmless type fudge,
-  fix opportunistically if plan 005 touches that line anyway.
+- **RowList `onFocus` typed as `React.MouseEvent`**: originally deferred as
+  harmless — turned out to hard-block `astro check` (strict mode), so it was
+  pulled into plan 001 as step 2b during execution.
 
 ## Direction findings (options for the maintainer — not ranked against the bugs)
 

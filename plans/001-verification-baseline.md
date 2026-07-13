@@ -90,6 +90,7 @@ must be a declared devDependency.
 **In scope** (the only files you should modify/create):
 - `package.json` (scripts + devDependencies)
 - `package-lock.json` (via npm, never by hand)
+- `src/components/ui.tsx` (ONLY the one-line handler-signature fix in step 2b — no other change)
 - `src/pages/api/contact.ts` (ONLY the export-keyword changes in step 3 — no behavior change)
 - `src/pages/api/contact.test.ts` (create)
 - `.github/workflows/ci.yml` (create)
@@ -143,8 +144,32 @@ In `package.json`, extend `scripts`:
 }
 ```
 
-**Verify**: `npm run check` → exits 0 with `0 errors`. If it reports errors,
-see STOP conditions.
+**Verify**: `npm run check` → exits 0 with `0 errors` — EXCEPT the one known
+pre-existing error fixed in step 2b. Expected on first run: exactly 1 error at
+`src/components/ui.tsx:237` (`onFocus={move}` — FocusEventHandler mismatch).
+Any OTHER error triggers the STOP condition.
+
+### Step 2b: Fix the one pre-existing typecheck error (scoped, one line)
+
+`astro check` has never run on this repo; it surfaces exactly one strict-mode
+error. In `src/components/ui.tsx:182`, the `RowList` handler is declared:
+
+```ts
+const move = (e: React.MouseEvent) => {
+```
+
+but it is wired to both `onMouseOver={move}` and `onFocus={move}` (ui.tsx:237).
+The body only reads `e.target`, so widen the parameter type — this satisfies
+both handler props under TypeScript's contravariant handler checking:
+
+```ts
+const move = (e: React.SyntheticEvent<HTMLDivElement>) => {
+```
+
+Change ONLY that parameter type. Do not touch anything else in ui.tsx.
+
+**Verify**: `npm run check` → exits 0, `0 errors`;
+`git diff src/components/ui.tsx` shows exactly one changed line.
 
 ### Step 3: Export the contact validation internals (no behavior change)
 
@@ -284,7 +309,7 @@ Machine-checkable. ALL must hold:
 - [ ] `npm run test` exits 0 with ≥ 12 passing tests
 - [ ] `npm run build` exits 0
 - [ ] `node -e "const p=require('./package.json'); if(!p.devDependencies.sharp) process.exit(1)"` exits 0
-- [ ] `git diff 762e2c2..HEAD --stat -- src/` touches ONLY `src/pages/api/contact.ts` and `src/pages/api/contact.test.ts`
+- [ ] `git diff 762e2c2..HEAD --stat -- src/` touches ONLY `src/pages/api/contact.ts`, `src/pages/api/contact.test.ts`, and `src/components/ui.tsx` (one line, step 2b)
 - [ ] `.github/workflows/ci.yml` and `CLAUDE.md` exist
 - [ ] `plans/README.md` status row updated
 
