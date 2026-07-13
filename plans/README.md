@@ -20,7 +20,7 @@ your row when done.
 | 003  | Contact endpoint hardening (origin check, rate limit, no-store) + security headers | P1 | M | 001 | DONE (`51aa396` on `advisor/003-contact-hardening`; reviewed+verified, unmerged) |
 | 004  | Metadata consistency (JSON-LD email leak, theme-color, sitemap, 404, unused font) | P2 | S | — | DONE (`92f6b90` on `advisor/004-metadata-consistency`; sitemap already matched built canonicals — no edit needed; reviewed+verified, unmerged) |
 | 005  | Hydration diet (split the page-wide island, delete dead client code) | P2 | L | 001 (do after 002) | DONE (`250c74b` on `advisor/005-hydration-diet`; 3 small islands replace the page-wide one; reviewed+verified, unmerged) |
-| 006  | Accessibility fixes (accordion exposure, menu keyboard, aria-label misuse) | P2 | S | — (coordinate with 005) | IN PROGRESS |
+| 006  | Accessibility fixes (accordion exposure, menu keyboard, aria-label misuse) | P2 | S | — (coordinate with 005) | DONE (`d431745` on `advisor/006-a11y-fixes`; human/AT keyboard pass still recommended; reviewed+verified, unmerged) |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
 
