@@ -213,9 +213,11 @@ interface ExpRowProps {
 }
 
 export function ExpRow({ role, co, meta, open, onToggle, children }: ExpRowProps) {
+  const bodyId = React.useId();
   return (
     <div className={'exp' + (open ? ' open' : '')}>
-      <button className="rrow exp-head" aria-expanded={!!open} onClick={onToggle}>
+      <button className="rrow exp-head" aria-expanded={!!open}
+        aria-controls={bodyId} onClick={onToggle}>
         <span className="rrow-lead">
           <span className="rrow-main">
             <span className="rrow-title">
@@ -231,7 +233,10 @@ export function ExpRow({ role, co, meta, open, onToggle, children }: ExpRowProps
           </span>
         </span>
       </button>
-      <div className="exp-body">
+      {/* Collapse is visual-only (grid-template-rows in CSS); aria-hidden keeps the
+          text out of the a11y tree while closed. If bios ever gain links, this must
+          become `inert` instead so those links can't be tabbed to while hidden. */}
+      <div className="exp-body" id={bodyId} role="region" aria-hidden={!open}>
         <div className="exp-inner">{children}</div>
       </div>
     </div>
