@@ -32,6 +32,7 @@ const ENV_KEYS = [
   'PUBLIC_FRIENDLY_CAPTCHA_SITEKEY',
   'CONTACT_TO',
   'CONTACT_FROM',
+  'VERCEL_URL',
 ];
 let savedEnv: Record<string, string | undefined> = {};
 
@@ -54,12 +55,20 @@ afterEach(() => {
 });
 
 // Builds the minimal APIContext the handler needs and invokes it directly.
-function post(body?: unknown): Promise<Response> {
+// Each call gets a unique synthetic x-forwarded-for IP by default so unrelated
+// tests never collide against the module-level rate limiter; pass an explicit
+// 'x-forwarded-for' in extraHeaders to opt into sharing a rate-limit bucket.
+let ipCounter = 0;
+function post(body?: unknown, extraHeaders: Record<string, string> = {}): Promise<Response> {
+  const headers: Record<string, string> = {
+    'x-forwarded-for': `10.0.0.${++ipCounter}`,
+    ...extraHeaders,
+  };
+  if (body !== undefined) headers['Content-Type'] = 'application/json';
   const request = new Request('http://localhost/api/contact', {
     method: 'POST',
-    ...(body === undefined
-      ? {}
-      : { body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } }),
+    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+    headers,
   });
   return POST({ request } as any) as Promise<Response>;
 }
@@ -183,5 +192,99 @@ describe('POST /api/contact', () => {
       expect(res.status).toBe(502);
       expect(await res.json()).toEqual({ error: 'Could not save your note. Please try again.' });
     });
+  });
+});
+
+describe('origin check', () => {
+  beforeEach(() => {
+    process.env.RESEND_API_KEY = 'test-key';
+    sendMock.mockResolvedValue({ error: null });
+  });
+
+  it('rejects a request from a disallowed origin', async () => {
+    const res = await post({ note: 'hi' }, { origin: 'https://evil.example' });
+    expect(res.status).toBe(403);
+    expect(await res.json()).toEqual({ error: 'Invalid request origin.' });
+  });
+
+  it('allows the canonical origin through to validation', async () => {
+    const res = await post({ note: '' }, { origin: 'https://johanneshomeier.com' });
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: 'Note cannot be empty.' });
+  });
+
+  it('allows a request with no Origin header through to validation', async () => {
+    const res = await post({ note: '' });
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: 'Note cannot be empty.' });
+  });
+
+  it('allows the current deployment origin (VERCEL_URL) through to validation', async () => {
+    process.env.VERCEL_URL = 'preview-abc.vercel.app';
+    const res = await post({ note: '' }, { origin: 'https://preview-abc.vercel.app' });
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: 'Note cannot be empty.' });
+  });
+});
+
+describe('rate limit', () => {
+  beforeEach(() => {
+    process.env.RESEND_API_KEY = 'test-key';
+    sendMock.mockResolvedValue({ error: null });
+  });
+
+  it('returns 429 on the 6th request from the same IP within the window', async () => {
+    const ip = '203.0.113.5';
+    for (let i = 0; i < 5; i++) {
+      const res = await post({ note: 'hi' }, { 'x-forwarded-for': ip });
+      expect(res.status).toBe(200);
+    }
+    const res = await post({ note: 'hi' }, { 'x-forwarded-for': ip });
+    expect(res.status).toBe(429);
+    expect(await res.json()).toEqual({ error: 'Too many requests. Please try again later.' });
+  });
+
+  it('does not rate-limit a different IP in the same window', async () => {
+    const ipA = '203.0.113.10';
+    for (let i = 0; i < 5; i++) {
+      await post({ note: 'hi' }, { 'x-forwarded-for': ipA });
+    }
+    const res = await post({ note: 'hi' }, { 'x-forwarded-for': '203.0.113.11' });
+    expect(res.status).toBe(200);
+  });
+
+  it('resets the rate limit window on a fresh module import', async () => {
+    const ip = '203.0.113.30';
+    for (let i = 0; i < 5; i++) {
+      await post({ note: 'hi' }, { 'x-forwarded-for': ip });
+    }
+    const limited = await post({ note: 'hi' }, { 'x-forwarded-for': ip });
+    expect(limited.status).toBe(429);
+
+    vi.resetModules();
+    const fresh = await import('./contact');
+    const request = new Request('http://localhost/api/contact', {
+      method: 'POST',
+      body: JSON.stringify({ note: 'hi' }),
+      headers: { 'Content-Type': 'application/json', 'x-forwarded-for': ip },
+    });
+    const res = await fresh.POST({ request } as any);
+    expect(res.status).toBe(200);
+  });
+});
+
+describe('Cache-Control', () => {
+  it('sets no-store on error responses', async () => {
+    const res = await post({ note: 'hi' });
+    expect(res.status).toBe(500);
+    expect(res.headers.get('Cache-Control')).toBe('no-store');
+  });
+
+  it('sets no-store on success responses', async () => {
+    process.env.RESEND_API_KEY = 'test-key';
+    sendMock.mockResolvedValue({ error: null });
+    const res = await post({ note: 'hi' });
+    expect(res.status).toBe(200);
+    expect(res.headers.get('Cache-Control')).toBe('no-store');
   });
 });
