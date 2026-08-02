@@ -213,6 +213,10 @@ export function Projects() {
       <div className="section-head"><h2 id="projects-heading" className="kick">Projects</h2></div>
       <RowList>
         <ProjRow
+          title="Elterngeld Kompass (🇩🇪 + Invite only)"
+          desc="Financial insights for becoming parents."
+          href="https://elterngeld-kompass.de" />
+        <ProjRow
           title="siteboard"
           desc="Website-analysis platform for SEO, performance, accessibility & security"
           href="https://siteboard.io/en" />
