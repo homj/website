@@ -85,9 +85,11 @@ const WEBSITE = {
 };
 
 // The projects listed on the home page, so an agent can enumerate them without
-// parsing the rendered markup.
+// parsing the rendered markup. Typed as both, because the ProfilePage references
+// it through `hasPart`, whose range is CreativeWork - an ItemList alone is an
+// Intangible, so a validator flags the edge and a typed consumer drops it.
 const PROJECT_LIST = {
-  '@type': 'ItemList',
+  '@type': ['CreativeWork', 'ItemList'],
   '@id': `${SITE.url}/#projects`,
   name: 'Projects',
   numberOfItems: PROJECTS.length,

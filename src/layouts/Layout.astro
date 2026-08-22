@@ -17,6 +17,7 @@ interface Props {
   image?: string;
   type?: 'website' | 'article' | 'profile';
   jsonLd?: object | object[];
+  /** Keep the page out of the index. Also drops the canonical link - see below. */
   noindex?: boolean;
   /** Path to a Markdown mirror of this page, advertised to agents. */
   mdAlternate?: string;
@@ -32,7 +33,13 @@ const {
 } = Astro.props;
 
 const site = Astro.site ?? new URL(SITE.url);
-const canonical = new URL(Astro.url.pathname, site).href;
+// A noindexed page has no canonical URL of its own. The 404 document is built to
+// /404.html but served at whatever path was requested, so a canonical derived
+// from its build path would name /404/ - an address this site does not serve.
+const canonical = noindex ? null : new URL(Astro.url.pathname, site).href;
+// Keep `follow` even when noindexed: the 404 page exists to point a crawler at
+// the real URLs, and nofollow would tell it to ignore exactly those links.
+const robots = noindex ? 'noindex, follow' : 'index, follow';
 const ogImage = new URL(image, site).href;
 const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 ---
@@ -45,8 +52,8 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
   <title>{title}</title>
   <meta name="description" content={description} />
   <meta name="author" content="Johannes Homeier" />
-  <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
-  <link rel="canonical" href={canonical} />
+  <meta name="robots" content={robots} />
+  {canonical && <link rel="canonical" href={canonical} />}
   <!-- Machine-readable mirrors and identity, so an agent can find the plain-text
        version of this page and verify who publishes it without scraping. -->
   {mdAlternate && (
@@ -63,7 +70,7 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
   <meta property="og:site_name" content={SITE.name} />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
-  <meta property="og:url" content={canonical} />
+  <meta property="og:url" content={canonical ?? site.href} />
   <meta property="og:locale" content={SITE.locale} />
   <meta property="og:image" content={ogImage} />
   <meta property="og:image:width" content="1200" />

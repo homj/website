@@ -14,9 +14,9 @@ const spec = {
     version: '1.0.0',
     summary: 'The single public endpoint of johanneshomeier.com: leave a note.',
     description:
-      'This personal site exposes one write endpoint. It accepts a short note and an optional reply-to address, and delivers it to the site owner. There is no authentication and no read API; the site content itself is available at /llms.txt, /llms-full.txt and /index.md.',
+      'This personal site exposes one write endpoint. It accepts a short note and an optional reply-to address, and delivers it to the site owner. There is no authentication and no read API; the site content itself is available at /llms.txt, /llms-full.txt and /index.md. The endpoint is readable from any origin: it answers the CORS preflight and returns `Access-Control-Allow-Origin: *`, so a browser-based agent can call it directly.',
     contact: { name: CONTROLLER.name, email: CONTROLLER.email, url: SITE.url },
-    license: { name: 'All rights reserved', url: `${SITE.url}/imprint` },
+    license: { name: 'All rights reserved', url: `${SITE.url}/imprint/` },
   },
   servers: [{ url: SITE.url, description: 'Production' }],
   paths: {
