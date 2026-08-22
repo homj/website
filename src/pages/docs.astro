@@ -34,6 +34,14 @@ Content-Type: application/json
   "email": "you@example.com"         // optional reply-to address
 &#125;</code></pre>
         <p>A success returns <code>200</code> with <code>&#123; "ok": true &#125;</code>.</p>
+        <p>
+          No API key is needed. When the site is running with Friendly Captcha
+          enabled, a third field <code>frcCaptchaResponse</code> is also required,
+          carrying a token from the widget on the home page; a call without one
+          answers <code>400</code> with <code>captcha_required</code>. That token
+          can only be produced by a browser, so an automated caller that hits it
+          should fall back to email.
+        </p>
 
         <h2>Versioning and deprecation</h2>
         <p>
@@ -97,7 +105,8 @@ Content-Type: application/json
         <p>
           There is no read API &mdash; the content is published as files instead:
           <a href="/llms.txt">/llms.txt</a> (index and when-to-use guidance),
-          <a href="/llms-full.txt">/llms-full.txt</a> (everything in one fetch),
+          <a href="/llms-full.txt">/llms-full.txt</a> (the home page plus operator
+          and legal details, in one fetch),
           <a href="/index.md">/index.md</a> (the home page as Markdown), and
           <a href="/sitemap.xml">/sitemap.xml</a>. Requesting <code>/</code> with
           <code>Accept: text/markdown</code> returns the Markdown representation.

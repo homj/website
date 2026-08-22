@@ -89,6 +89,7 @@ const checks = [
   ['/ sends Vary: Accept',         (serve('/', { accept: HTML }).headers['vary'] ?? '').includes('Accept')],
   ['md miss -> /404.md + 404',     (() => { const r = serve('/nope', { accept: MD }); return r.dest === '/404.md' && r.status === 404; })()],
   ['html miss -> /404.html + 404', (() => { const r = serve('/nope', { accept: HTML }); return r.dest === '/404.html' && r.status === 404; })()],
+  ['404 branches send Vary',       ['/nope'].every(p => [MD, HTML].every(a => (serve(p, { accept: a }).headers['vary'] ?? '').includes('Accept')))],
   ['llms.txt unaffected by Accept',serve('/llms.txt', { accept: MD }).dest === '/llms.txt'],
 ];
 console.log();
