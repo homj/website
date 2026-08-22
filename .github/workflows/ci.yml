@@ -21,6 +21,13 @@ jobs:
 
       - run: npm ci
 
+      # Generates .astro/types.d.ts, which src/env.d.ts references and which is
+      # gitignored - so a fresh checkout has no types for `import.meta.env` and
+      # the type check below fails without this. A local tree usually has it
+      # already from an earlier build, which is exactly how the gap hid.
+      - name: Sync Astro types
+        run: npx astro sync
+
       # Type-check the whole tree, including .astro frontmatter.
       - name: Type check
         run: npx tsc --noEmit -p tsconfig.json
