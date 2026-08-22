@@ -13,6 +13,9 @@ const HOME_LASTMOD = [PERSONAL.updatedISO, CONTENT_UPDATED_ISO].sort().at(-1)!;
 
 const PAGES: { path: string; lastmod: string; priority: string; changefreq: string }[] = [
   { path: '/', lastmod: HOME_LASTMOD, priority: '1.0', changefreq: 'monthly' },
+  { path: '/about/', lastmod: CONTENT_UPDATED_ISO, priority: '0.8', changefreq: 'monthly' },
+  { path: '/contact/', lastmod: CONTENT_UPDATED_ISO, priority: '0.8', changefreq: 'monthly' },
+  { path: '/docs/', lastmod: CONTENT_UPDATED_ISO, priority: '0.6', changefreq: 'monthly' },
   { path: '/imprint/', lastmod: LEGAL_UPDATED_ISO, priority: '0.2', changefreq: 'yearly' },
   { path: '/privacy/', lastmod: LEGAL_UPDATED_ISO, priority: '0.2', changefreq: 'yearly' },
 ];

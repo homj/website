@@ -1,6 +1,7 @@
 // Canonical site metadata + JSON-LD building blocks, shared across pages.
 
 import { EXPERIENCE, PROJECTS } from './content';
+import { CONTROLLER } from './legal';
 
 export const SITE = {
   url: 'https://johanneshomeier.com',
@@ -17,6 +18,23 @@ export const SAME_AS = [
   'https://twitter.com/homiathome',
   'https://www.linkedin.com/in/johannes-homeier/',
 ];
+
+const POSTAL_ADDRESS = {
+  '@type': 'PostalAddress',
+  streetAddress: CONTROLLER.street,
+  postalCode: CONTROLLER.postalCode,
+  addressLocality: CONTROLLER.city,
+  addressCountry: 'DE',
+};
+
+const CONTACT_POINT = {
+  '@type': 'ContactPoint',
+  contactType: 'Business inquiries',
+  email: CONTROLLER.email,
+  url: `${SITE.url}/contact/`,
+  availableLanguage: ['en', 'de'],
+  areaServed: 'Worldwide',
+};
 
 const REGENSBURG = {
   '@type': 'Place',
@@ -46,7 +64,7 @@ const PERSON = {
   jobTitle: 'Product Engineer & Tech Lead',
   description: SITE.description,
   email: 'hello@johanneshomeier.com',
-  address: { '@type': 'PostalAddress', addressLocality: 'Regensburg', addressCountry: 'DE' },
+  address: POSTAL_ADDRESS,
   homeLocation: REGENSBURG,
   workLocation: REGENSBURG,
   worksFor: ROLES,
@@ -56,13 +74,7 @@ const PERSON = {
     occupationalCategory: '15-1252.00', // O*NET: Software Developers
     description: SITE.description,
   },
-  contactPoint: {
-    '@type': 'ContactPoint',
-    contactType: 'Business inquiries',
-    email: 'hello@johanneshomeier.com',
-    url: `${SITE.url}/#contact-heading`,
-    availableLanguage: ['en', 'de'],
-  },
+  contactPoint: CONTACT_POINT,
   knowsAbout: [
     'Software engineering', 'Product engineering', 'Web development', 'Frontend architecture',
     'Software Architecture', 'Domain-Driven Design (DDD)', 'Spec-Driven Development (SDD)',
@@ -75,6 +87,27 @@ const PERSON = {
     name: 'Universität Regensburg',
     sameAs: 'https://www.uni-regensburg.de/',
   },
+  knowsLanguage: ['English', 'German'],
+  sameAs: SAME_AS,
+};
+
+const ORGANIZATION = {
+  '@type': 'Organization',
+  '@id': `${SITE.url}/#organization`,
+  name: 'Johannes Homeier',
+  legalName: CONTROLLER.name,
+  description:
+    'Independent product engineering and technical leadership: web applications, frontend architecture, and hands-on delivery for small teams.',
+  url: SITE.url,
+  logo: `${SITE.url}/icon-512.png`,
+  image: `${SITE.url}/og.png`,
+  email: CONTROLLER.email,
+  address: POSTAL_ADDRESS,
+  contactPoint: CONTACT_POINT,
+  vatID: CONTROLLER.vatId,
+  founder: { '@id': `${SITE.url}/#person` },
+  employee: { '@id': `${SITE.url}/#person` },
+  areaServed: 'Worldwide',
   knowsLanguage: ['English', 'German'],
   sameAs: SAME_AS,
 };
@@ -129,6 +162,7 @@ export const homeJsonLd = {
   '@context': 'https://schema.org',
   '@graph': [
     PERSON,
+    ORGANIZATION,
     WEBSITE,
     PROJECT_LIST,
     {
@@ -145,6 +179,33 @@ export const homeJsonLd = {
     },
   ],
 };
+
+/** WebPage graph for a secondary page, typed (AboutPage, ContactPage, WebPage). */
+export function subPageJsonLd(
+  path: string,
+  name: string,
+  description: string,
+  type: 'AboutPage' | 'ContactPage' | 'WebPage' = 'WebPage',
+) {
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': type,
+        '@id': `${SITE.url}${path}#webpage`,
+        url: `${SITE.url}${path}`,
+        name,
+        description,
+        inLanguage: 'en',
+        isPartOf: { '@id': `${SITE.url}/#website` },
+        about: { '@id': `${SITE.url}/#person` },
+        publisher: { '@id': `${SITE.url}/#organization` },
+        breadcrumb: { '@id': `${SITE.url}${path}#breadcrumb` },
+      },
+      breadcrumb(path, name),
+    ],
+  };
+}
 
 /** WebPage + breadcrumb graph for the imprint and privacy pages. */
 export function legalPageJsonLd(path: string, name: string, description: string) {

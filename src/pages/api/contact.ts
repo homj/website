@@ -25,14 +25,71 @@ const DEFAULT_FROM = 'Johannes Homeier <no-reply@johanneshomeier.com>';
 // an agent can discover it from another origin. Without these the browser blocks
 // the call it just learned how to make: a JSON body makes the POST non-simple, so
 // it is preflighted, and the preflight needs its own answer (see OPTIONS below).
+// Rate limiting. Deliberately in-memory rather than backed by the database: the
+// only durable key would be the caller's IP, and storing that would be a new
+// category of personal data on a site whose privacy policy says it stores none.
+// A serverless instance is short-lived and there may be several, so this is a
+// floor rather than a global guarantee - openapi.json says so plainly. The
+// captcha remains the real abuse control; this exists so an agent reading the
+// RateLimit headers is told something true.
+const RATE_LIMIT = 10;             // requests per window, per instance
+const RATE_WINDOW_MS = 60 * 60_000; // one hour
+const hits = new Map<string, number[]>();
+
+function rateLimit(ip: string): { allowed: boolean; remaining: number; reset: number } {
+  const now = Date.now();
+  const cutoff = now - RATE_WINDOW_MS;
+
+  // Prune whole entries as we go, so the map cannot grow without bound on an
+  // instance that survives a long time.
+  for (const [key, times] of hits) {
+    const live = times.filter(t => t > cutoff);
+    if (live.length) hits.set(key, live);
+    else hits.delete(key);
+  }
+
+  const times = hits.get(ip) ?? [];
+  const oldest = times[0] ?? now;
+  const reset = Math.max(1, Math.ceil((oldest + RATE_WINDOW_MS - now) / 1000));
+
+  if (times.length >= RATE_LIMIT) return { allowed: false, remaining: 0, reset };
+
+  times.push(now);
+  hits.set(ip, times);
+  return { allowed: true, remaining: RATE_LIMIT - times.length, reset };
+}
+
+function rateHeaders(r: { remaining: number; reset: number }): Record<string, string> {
+  return {
+    'RateLimit-Limit': String(RATE_LIMIT),
+    'RateLimit-Remaining': String(r.remaining),
+    'RateLimit-Reset': String(r.reset),
+    'RateLimit-Policy': `${RATE_LIMIT};w=${RATE_WINDOW_MS / 1000}`,
+  };
+}
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
   'Access-Control-Max-Age': '86400',
+  'Access-Control-Expose-Headers':
+    'RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset, RateLimit-Policy, Retry-After',
 };
 
 export const OPTIONS: APIRoute = () => new Response(null, { status: 204, headers: CORS });
+
+// Any method other than POST/OPTIONS. Answered in JSON rather than letting the
+// framework return an HTML page: a caller that reached this endpoint is doing so
+// programmatically, and an HTML error is not something it can act on.
+export const ALL: APIRoute = ({ request }) =>
+  fail(
+    'method_not_allowed',
+    `${request.method} is not supported on this endpoint.`,
+    'Use POST with a JSON body. See https://johanneshomeier.com/openapi.json.',
+    405,
+    { Allow: 'POST, OPTIONS' },
+  );
 
 // Strip control characters that would break Postgres text storage (NUL bytes
 // are rejected outright) or leak into email headers. The note keeps tabs and
@@ -54,11 +111,23 @@ function dbUrl(): string | undefined {
     ?? env('POSTGRES_URL_NON_POOLING') ?? env('DATABASE_URL_UNPOOLED');
 }
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, clientAddress }) => {
+  const limit = rateLimit(clientAddress ?? 'unknown');
+  if (!limit.allowed) {
+    return fail(
+      'rate_limited',
+      'Too many notes from this address. Try again later.',
+      `Wait ${limit.reset} seconds before retrying; see the RateLimit headers on this response.`,
+      429,
+      { ...rateHeaders(limit), 'Retry-After': String(limit.reset) },
+    );
+  }
+
   const resendKey = env('RESEND_API_KEY');
   const hasDb = !!dbUrl();
   if (!hasDb && !resendKey) {
-    return json({ error: 'Contact is not configured.' }, 500);
+    return fail('not_configured', 'Contact is not configured.',
+      'The server is missing its delivery credentials. Email hello@johanneshomeier.com directly.', 500);
   }
 
   let note = '';
@@ -70,17 +139,21 @@ export const POST: APIRoute = async ({ request }) => {
     email = typeof body?.email === 'string' ? clean(body.email) : '';
     captchaResponse = typeof body?.frcCaptchaResponse === 'string' ? body.frcCaptchaResponse : '';
   } catch {
-    return json({ error: 'Invalid request body.' }, 400);
+    return fail('invalid_body', 'Invalid request body.',
+      'Send a JSON object with a `note` string. See https://johanneshomeier.com/openapi.json.', 400);
   }
 
   if (!note) {
-    return json({ error: 'Note cannot be empty.' }, 400);
+    return fail('note_empty', 'Note cannot be empty.',
+      'Provide a non-empty `note` string.', 400);
   }
   if (note.length > MAX_LEN) {
-    return json({ error: 'Note is too long.' }, 400);
+    return fail('note_too_long', 'Note is too long.',
+      `Keep \`note\` to ${MAX_LEN} characters or fewer.`, 400);
   }
   if (email && (email.length > EMAIL_MAX || !EMAIL_RE.test(email))) {
-    return json({ error: 'That email address looks invalid.' }, 400);
+    return fail('email_invalid', 'That email address looks invalid.',
+      'Send a valid address in `email`, or omit the field to stay anonymous.', 400);
   }
 
   // Bot prevention via Friendly Captcha. Only enforced when an API key is
@@ -93,10 +166,12 @@ export const POST: APIRoute = async ({ request }) => {
       console.warn('FRIENDLY_CAPTCHA_API_KEY is set without PUBLIC_FRIENDLY_CAPTCHA_SITEKEY - the widget will not render and submissions will be rejected.');
     }
     if (!captchaResponse) {
-      return json({ error: 'Captcha verification is required.' }, 400);
+      return fail('captcha_required', 'Captcha verification is required.',
+        'Solve the Friendly Captcha widget and send its token as `frcCaptchaResponse`.', 400);
     }
     if (!(await verifyCaptcha(frcApiKey, captchaResponse))) {
-      return json({ error: 'Captcha verification failed. Please try again.' }, 400);
+      return fail('captcha_failed', 'Captcha verification failed. Please try again.',
+        'Request a fresh captcha token and retry; tokens are single-use and expire.', 400);
     }
   }
 
@@ -108,10 +183,14 @@ export const POST: APIRoute = async ({ request }) => {
   ]);
 
   if (!stored && !emailed) {
-    return json({ error: 'Could not save your note. Please try again.' }, 502);
+    return fail('delivery_failed', 'Could not save your note. Please try again.',
+      'Both delivery sinks failed. This is retryable - try again shortly.', 502);
   }
 
-  return json({ ok: true }, 200);
+  return new Response(JSON.stringify({ ok: true }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json', ...CORS, ...rateHeaders(limit) },
+  });
 };
 
 // Lazily create the table once per process; reset on failure so a later
@@ -188,9 +267,17 @@ async function verifyCaptcha(apiKey: string, response: string): Promise<boolean>
   }
 }
 
-function json(data: unknown, status: number): Response {
-  return new Response(JSON.stringify(data), {
+// Structured error body: `error` stays for the browser form, `code` gives a
+// caller something stable to branch on, and `resolution` says what to do next.
+function fail(
+  code: string,
+  message: string,
+  resolution: string,
+  status: number,
+  extraHeaders: Record<string, string> = {},
+): Response {
+  return new Response(JSON.stringify({ error: message, code, resolution, status }), {
     status,
-    headers: { 'Content-Type': 'application/json', ...CORS },
+    headers: { 'Content-Type': 'application/json', ...CORS, ...extraHeaders },
   });
 }

@@ -1,0 +1,124 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { subPageJsonLd } from '../data/seo';
+
+const DESCRIPTION =
+  'API reference for johanneshomeier.com: the public contact endpoint, its request schema, error codes, versioning and rate limits.';
+---
+
+<Layout title="API reference - Johannes Homeier" description={DESCRIPTION}
+  jsonLd={subPageJsonLd('/docs/', 'API reference', DESCRIPTION)}>
+  <div class="site">
+    <Nav />
+    <main>
+      <article class="page wrap detail legal">
+        <a class="backlink" href="/">Back</a>
+
+        <h1>API reference</h1>
+        <p>
+          This site exposes exactly one endpoint: a way to send a message without
+          driving the browser form. It is unauthenticated and free to use. The machine
+          -readable description lives at <a href="/openapi.json">/openapi.json</a>
+          (OpenAPI 3.1); everything below restates it for humans.
+        </p>
+
+        <h2>Send a note</h2>
+        <pre><code>POST /api/contact
+POST /api/v1/contact
+Content-Type: application/json
+
+&#123;
+  "note": "your message",            // required, 1-5000 characters
+  "email": "you@example.com"         // optional reply-to address
+&#125;</code></pre>
+        <p>A success returns <code>200</code> with <code>&#123; "ok": true &#125;</code>.</p>
+
+        <h2>Versioning and deprecation</h2>
+        <p>
+          The endpoint is available unversioned at <code>/api/contact</code> and
+          version-pinned at <code>/api/v1/contact</code>. Both serve the same handler
+          today. Pin to <code>/api/v1/</code> if you are integrating: breaking changes
+          will ship under a new path (<code>/api/v2/</code>) rather than altering
+          <code>v1</code> in place.
+        </p>
+        <p>
+          If a version is ever retired it will first return a
+          <code>Deprecation</code> header and a <code>Sunset</code> header
+          (<a href="https://www.rfc-editor.org/rfc/rfc8594" rel="noreferrer" target="_blank">RFC 8594</a>)
+          giving the retirement date, and will keep working for at least six months
+          after that header first appears. The unversioned path always follows the
+          newest version and can change without that notice.
+        </p>
+
+        <h2>Rate limits</h2>
+        <p>
+          Ten requests per hour. Every response carries
+          <code>RateLimit-Limit</code>, <code>RateLimit-Remaining</code>,
+          <code>RateLimit-Reset</code> and <code>RateLimit-Policy</code>; a
+          <code>429</code> adds <code>Retry-After</code>. The limit is enforced per
+          serving instance rather than globally, so treat it as a floor, not a
+          guarantee &mdash; back off when the headers say to.
+        </p>
+
+        <h2>Errors</h2>
+        <p>
+          Every error is JSON, never an HTML page, and carries a stable
+          <code>code</code> you can branch on plus a <code>resolution</code> describing
+          what to do next:
+        </p>
+        <pre><code>&#123;
+  "error": "Note is too long.",
+  "code": "note_too_long",
+  "resolution": "Keep `note` to 5000 characters or fewer.",
+  "status": 400
+&#125;</code></pre>
+        <table>
+          <thead><tr><th>Status</th><th>Codes</th></tr></thead>
+          <tbody>
+            <tr><td>400</td><td><code>invalid_body</code>, <code>note_empty</code>, <code>note_too_long</code>, <code>email_invalid</code>, <code>captcha_required</code>, <code>captcha_failed</code></td></tr>
+            <tr><td>404</td><td><code>endpoint_not_found</code></td></tr>
+            <tr><td>405</td><td><code>method_not_allowed</code></td></tr>
+            <tr><td>429</td><td><code>rate_limited</code></td></tr>
+            <tr><td>500</td><td><code>not_configured</code></td></tr>
+            <tr><td>502</td><td><code>delivery_failed</code> &mdash; retryable</td></tr>
+          </tbody>
+        </table>
+
+        <h2>CORS</h2>
+        <p>
+          The endpoint and every machine-readable file are served with
+          <code>Access-Control-Allow-Origin: *</code>, and the endpoint answers
+          preflight, so a browser-based agent can call it from another origin.
+        </p>
+
+        <h2>Reading the site itself</h2>
+        <p>
+          There is no read API &mdash; the content is published as files instead:
+          <a href="/llms.txt">/llms.txt</a> (index and when-to-use guidance),
+          <a href="/llms-full.txt">/llms-full.txt</a> (everything in one fetch),
+          <a href="/index.md">/index.md</a> (the home page as Markdown), and
+          <a href="/sitemap.xml">/sitemap.xml</a>. Requesting <code>/</code> with
+          <code>Accept: text/markdown</code> returns the Markdown representation.
+        </p>
+      </article>
+    </main>
+    <Footer />
+  </div>
+</Layout>
+
+<style>
+  .legal h1 { font-size: 1.375rem; }
+  .legal h2 { font-size: var(--text-md); margin-top: var(--space-7); }
+  .legal pre {
+    background: var(--bg-sunk, rgba(0,0,0,.04));
+    padding: var(--space-4);
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 0.85em;
+    line-height: 1.5;
+  }
+  .legal table { width: 100%; border-collapse: collapse; margin: var(--space-5) 0; font-size: 0.9em; }
+  .legal th, .legal td { text-align: left; padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--line, rgba(0,0,0,.1)); vertical-align: top; }
+</style>

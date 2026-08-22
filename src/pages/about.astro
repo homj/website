@@ -1,0 +1,95 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { EXPERIENCE } from '../data/content';
+import { subPageJsonLd } from '../data/seo';
+
+const DESCRIPTION =
+  'Johannes Homeier is an independent product engineer and tech lead in Regensburg, Germany, with 13+ years building web software and leading small teams.';
+---
+
+<Layout title="About - Johannes Homeier" description={DESCRIPTION}
+  jsonLd={subPageJsonLd('/about/', 'About', DESCRIPTION, 'AboutPage')}>
+  <div class="site">
+    <Nav />
+    <main>
+      <article class="page wrap detail legal">
+        <a class="backlink" href="/">Back</a>
+
+        <h1>About</h1>
+
+        <p>
+          I&rsquo;m Johannes Homeier, an independent product engineer and tech lead based in
+          Regensburg, Germany. I&rsquo;ve spent more than thirteen years building web software:
+          shipping products, shaping the interfaces people actually touch, and leading small
+          teams through the parts that are hard to get right.
+        </p>
+
+        <h2>How I work</h2>
+        <p>
+          I studied Media Informatics and Information Science with a focus on
+          Human-Computer Interaction and usability engineering, and that shows in how I
+          approach engineering work. I don&rsquo;t think of user needs, design and
+          implementation as three separate jobs handed down a line &mdash; the interesting
+          decisions live where they meet. In practice that means I&rsquo;m as comfortable
+          arguing about an empty state or a loading transition as about a schema migration
+          or a deployment topology.
+        </p>
+        <p>
+          Most of my work is hands-on. I write the code, and I stay close enough to the
+          product to push back when a requirement is going to produce something nobody
+          wants to use. I care a great deal about the details most people skip: the second
+          click, the error message, the case where the network is slow.
+        </p>
+
+        <h2>What I do</h2>
+        <p>
+          I take on senior engineering across a small number of concurrent client projects,
+          usually where the work needs architecture judgement as much as delivery. That has
+          recently included a mail client and offer wizard inside a B2B parcel-delivery
+          company&rsquo;s CRM, and a distributable web component for pushing
+          construction-material catalogs out to dealer networks.
+        </p>
+        <p>
+          Typical engagements involve TypeScript, React or Angular, Node and NestJS, and
+          increasingly AI-assisted development workflows. I also do architecture review,
+          frontend performance and accessibility work, and technical due diligence.
+        </p>
+
+        <h2>Background</h2>
+        <ul>
+          {EXPERIENCE.map(e => (
+            <li><strong>{e.role}</strong>, {e.co} <em>({e.meta})</em></li>
+          ))}
+        </ul>
+        <p>
+          Before going independent I co-founded and ran <strong>bynary</strong>, a
+          development agency, for close to ten years, growing it to a team of ten and
+          shipping over a hundred projects across adtech, healthcare, biotech, fintech,
+          e-commerce and travel. In 2025 we spun an internal tool out into
+          <strong>siteboard</strong>, a website-analysis SaaS, where I joined as co-founder
+          and CTO and owned the platform end to end &mdash; more than ten million audits
+          across two thousand sites.
+        </p>
+
+        <h2>Elsewhere</h2>
+        <p>
+          Code lives on <a href="https://github.com/homj" rel="me noreferrer" target="_blank">GitHub</a>,
+          work history on <a href="https://www.linkedin.com/in/johannes-homeier/" rel="me noreferrer" target="_blank">LinkedIn</a>.
+          The <a href="/">home page</a> has current projects and a fuller timeline, and
+          there is a plain-text mirror of this site at <a href="/llms.txt">/llms.txt</a>.
+        </p>
+        <p>If you&rsquo;d like to work together, the <a href="/contact/">contact page</a> has every way to reach me.</p>
+      </article>
+    </main>
+    <Footer />
+  </div>
+</Layout>
+
+<style>
+  .legal h1 { font-size: 1.375rem; }
+  .legal h2 { font-size: var(--text-md); margin-top: var(--space-7); }
+  .legal ul { margin: var(--space-5) 0; padding-left: 1.25rem; line-height: var(--leading-relaxed); }
+  .legal li { margin-bottom: var(--space-2); }
+</style>

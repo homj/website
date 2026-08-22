@@ -1,4 +1,4 @@
-// Adds response headers to the Vercel build output.
+// Adds response headers and Accept-negotiation routes to the Vercel build output.
 //
 // The Astro Vercel adapter emits .vercel/output/config.json via the Build
 // Output API, and that file is the authoritative routing config - `headers` in
@@ -46,9 +46,49 @@ const routes = [
   },
   {
     // Not every CDN mime table knows .md; state it rather than hope.
-    src: '^/index\\.md$',
+    src: '^/(index|404)\\.md$',
     headers: { 'content-type': 'text/markdown; charset=utf-8' },
     continue: true,
+  },
+  {
+    // `/` and `/index.md` are two representations selected by Accept, so the
+    // cache key has to include it. Without Vary a CDN can hand the HTML variant
+    // to an agent asking for markdown, depending on which landed in cache first.
+    src: '^/(index\\.md)?$',
+    headers: { vary: 'Accept, Accept-Encoding' },
+    continue: true,
+  },
+  {
+    // Header routes match the requested path, not the rewritten one, so `/`
+    // needs its own content-type rule - the rewrite below leaves the URL as `/`.
+    src: '^/$',
+    has: [{ type: 'header', key: 'accept', value: '.*text/markdown.*' }],
+    headers: { 'content-type': 'text/markdown; charset=utf-8' },
+    continue: true,
+  },
+  {
+    // acceptmarkdown.com: an agent asking for markdown gets the markdown mirror
+    // of the home page. A rewrite, not a redirect, so the URL stays `/`.
+    src: '^/$',
+    has: [{ type: 'header', key: 'accept', value: '.*text/markdown.*' }],
+    dest: '/index.md',
+  },
+];
+
+// Served after the filesystem handler, so it only catches genuine misses. Gives
+// an agent asking for markdown a markdown 404 body it can act on, instead of a
+// page of HTML chrome.
+const notFoundRoutes = [
+  {
+    src: '/.*',
+    has: [{ type: 'header', key: 'accept', value: '.*text/markdown.*' }],
+    dest: '/404.md',
+    status: 404,
+    headers: {
+      vary: 'Accept, Accept-Encoding',
+      'content-type': 'text/markdown; charset=utf-8',
+      'access-control-allow-origin': '*',
+    },
   },
 ];
 
@@ -67,5 +107,21 @@ if (fsIndex === -1) {
 }
 config.routes.splice(fsIndex, 0, ...routes);
 
+// The markdown 404 has to sit ahead of the adapter's terminal `/.*` -> /404.html
+// route, which matches everything and would otherwise answer first.
+const catchAll = config.routes.findIndex(
+  r => r.status === 404 && typeof r.dest === 'string' && r.dest.includes('404'),
+);
+if (catchAll === -1) {
+  throw new Error(
+    `${CONFIG} has no terminal 404 route - the adapter's output shape changed. `
+    + 'Refusing to write a markdown 404 that could never match; update this script.',
+  );
+}
+config.routes.splice(catchAll, 0, ...notFoundRoutes);
+
 await writeFile(CONFIG, JSON.stringify(config, null, '\t'));
-console.log(`vercel-headers: inserted ${routes.length} header routes at index ${fsIndex}`);
+console.log(
+  `vercel-headers: inserted ${routes.length} routes at ${fsIndex}, `
+  + `${notFoundRoutes.length} not-found route at ${catchAll}`,
+);

@@ -19,6 +19,23 @@ const spec = {
     license: { name: 'All rights reserved', url: `${SITE.url}/imprint/` },
   },
   servers: [{ url: SITE.url, description: 'Production' }],
+  'x-versioning': {
+    policy:
+      'Breaking changes ship under a new path segment (/api/v2/...) rather than altering an existing version in place. Pin to /api/v1/ when integrating; the unversioned /api/contact always follows the newest version and can change without notice.',
+    current: 'v1',
+    deprecationSignals: [
+      'A retiring version returns a `Deprecation` header and a `Sunset` header (RFC 8594) carrying the retirement date.',
+      'A version keeps serving for at least six months after its Sunset header first appears.',
+    ],
+    documentation: `${SITE.url}/docs/`,
+  },
+  'x-rateLimit': {
+    limit: 10,
+    windowSeconds: 3600,
+    scope:
+      'Enforced per serving instance rather than globally, so treat it as a floor rather than a guarantee.',
+    headers: ['RateLimit-Limit', 'RateLimit-Remaining', 'RateLimit-Reset', 'RateLimit-Policy', 'Retry-After'],
+  },
   paths: {
     '/api/contact': {
       post: {
@@ -79,8 +96,44 @@ const spec = {
         },
       },
     },
+    '/api/v1/contact': {
+      post: {
+        operationId: 'leaveNoteV1',
+        summary: 'Leave a note (version-pinned)',
+        description:
+          'Identical to POST /api/contact, pinned to v1. Prefer this path when integrating: a breaking change will ship as /api/v2/contact rather than changing this one.',
+        tags: ['contact'],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': { schema: { $ref: '#/components/schemas/NoteRequest' } },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'The note was stored, emailed, or both.',
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/NoteAccepted' } },
+            },
+          },
+          '400': { $ref: '#/components/responses/BadRequest' },
+          '429': { $ref: '#/components/responses/RateLimited' },
+        },
+      },
+    },
   },
   components: {
+    responses: {
+      BadRequest: {
+        description: 'The request was rejected. See `code` for the specific reason.',
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
+      },
+      RateLimited: {
+        description:
+          'Rate limit exceeded. `Retry-After` and the RateLimit headers say when to try again.',
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
+      },
+    },
     schemas: {
       NoteRequest: {
         type: 'object',
@@ -112,8 +165,22 @@ const spec = {
       },
       Error: {
         type: 'object',
-        required: ['error'],
-        properties: { error: { type: 'string', description: 'Human-readable reason.' } },
+        required: ['error', 'code', 'resolution', 'status'],
+        description: 'Every error from this API uses this shape - never an HTML page.',
+        properties: {
+          error: { type: 'string', description: 'Human-readable reason.' },
+          code: {
+            type: 'string',
+            description: 'Stable machine-readable identifier; branch on this, not on the message.',
+            enum: [
+              'invalid_body', 'note_empty', 'note_too_long', 'email_invalid',
+              'captcha_required', 'captcha_failed', 'rate_limited',
+              'method_not_allowed', 'endpoint_not_found', 'not_configured', 'delivery_failed',
+            ],
+          },
+          resolution: { type: 'string', description: 'What the caller should do next.' },
+          status: { type: 'integer', description: 'Repeats the HTTP status, for logging.' },
+        },
       },
     },
   },
