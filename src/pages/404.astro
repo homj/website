@@ -1,0 +1,41 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+// A real 404 document, so unknown paths answer with a genuine HTTP 404 and a
+// page that still tells a reader (or an agent) where the real content is.
+---
+
+<Layout
+  title="Page not found - Johannes Homeier"
+  description="This page does not exist. The site is a single-page profile plus an imprint and a privacy policy."
+  noindex={true}>
+  <div class="site">
+    <Nav />
+    <main>
+      <article class="page wrap detail legal">
+        <h1>Page not found</h1>
+        <p>There is nothing at this address. This site has three pages:</p>
+        <ul>
+          <li><a href="/">Home</a> - profile, projects, experience, and contact</li>
+          <li><a href="/imprint/">Imprint</a> - operator identity and VAT ID</li>
+          <li><a href="/privacy/">Privacy policy</a> - GDPR disclosures</li>
+        </ul>
+        <p>
+          Reading this with a tool? The whole site is available as plain text at
+          <a href="/llms.txt">/llms.txt</a> and as Markdown at
+          <a href="/index.md">/index.md</a>, and every canonical URL is listed in
+          <a href="/sitemap.xml">/sitemap.xml</a>.
+        </p>
+      </article>
+    </main>
+    <Footer />
+  </div>
+</Layout>
+
+<style>
+  .legal h1 { font-size: 1.375rem; }
+  .legal ul { margin: var(--space-5) 0; padding-left: 1.25rem; line-height: var(--leading-relaxed); }
+  .legal li { margin-bottom: var(--space-2); }
+</style>

@@ -12,3 +12,6 @@ export const CONTROLLER = {
 
 // Shown as the "last updated" status on the privacy policy.
 export const LEGAL_UPDATED = '2 June 2026';
+
+/** Same date as LEGAL_UPDATED, for <lastmod> and structured data. */
+export const LEGAL_UPDATED_ISO = '2026-06-02';
