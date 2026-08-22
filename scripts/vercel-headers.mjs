@@ -26,7 +26,9 @@ const routes = [
     src: '^/(.*)$',
     headers: {
       // Vercel terminates TLS for every request; no subdomain is served plaintext.
-      'strict-transport-security': 'max-age=63072000; includeSubDomains',
+      // `preload` submits the domain to the browsers' built-in HSTS list: every
+      // present and future subdomain is HTTPS-only, and removal takes months.
+      'strict-transport-security': 'max-age=63072000; includeSubDomains; preload',
       'x-content-type-options': 'nosniff',
       'referrer-policy': 'strict-origin-when-cross-origin',
       'x-frame-options': 'DENY',

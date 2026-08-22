@@ -70,6 +70,11 @@ const PERSON = {
     'Web accessibility', 'Web performance', 'TypeScript', 'React', 'Next.js', 'Angular',
     'NestJS', 'Node.js', 'Nx Workspace', 'Astro',
   ],
+  alumniOf: {
+    '@type': 'CollegeOrUniversity',
+    name: 'Universität Regensburg',
+    sameAs: 'https://www.uni-regensburg.de/',
+  },
   knowsLanguage: ['English', 'German'],
   sameAs: SAME_AS,
 };
