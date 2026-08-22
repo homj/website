@@ -9,7 +9,7 @@ import '@fontsource/inter/latin-600.css';
 import '@fontsource/inter/latin-700.css';
 import Analytics from '@vercel/analytics/astro';
 import SpeedInsights from '@vercel/speed-insights/astro';
-import { SITE } from '../data/seo';
+import { SAME_AS, SITE } from '../data/seo';
 
 interface Props {
   title?: string;
@@ -18,6 +18,8 @@ interface Props {
   type?: 'website' | 'article' | 'profile';
   jsonLd?: object | object[];
   noindex?: boolean;
+  /** Path to a Markdown mirror of this page, advertised to agents. */
+  mdAlternate?: string;
 }
 const {
   title = SITE.title,
@@ -26,6 +28,7 @@ const {
   type = 'website',
   jsonLd,
   noindex = false,
+  mdAlternate,
 } = Astro.props;
 
 const site = Astro.site ?? new URL(SITE.url);
@@ -44,6 +47,14 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
   <meta name="author" content="Johannes Homeier" />
   <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
   <link rel="canonical" href={canonical} />
+  <!-- Machine-readable mirrors and identity, so an agent can find the plain-text
+       version of this page and verify who publishes it without scraping. -->
+  {mdAlternate && (
+    <link rel="alternate" type="text/markdown" href={new URL(mdAlternate, site).href}
+      title="Markdown version of this page" />
+  )}
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+  {SAME_AS.map((href) => <link rel="me" href={href} />)}
   <meta name="theme-color" content="#FBF9F4" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#16161A" media="(prefers-color-scheme: dark)" />
 

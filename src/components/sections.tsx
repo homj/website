@@ -1,4 +1,5 @@
 import React from 'react';
+import { EXPERIENCE, PERSONAL, PROJECTS } from '../data/content';
 import { ExpRow, Icon, ProjRow, RowList, SOCIALS } from './ui';
 
 // ── DotField — interactive monochrome canvas ─────────────────────────────────
@@ -182,7 +183,7 @@ export function Personal() {
   return (
     <section className="section" aria-labelledby="personal-heading">
       <div className="section-head"><h2 id="personal-heading" className="kick">Personal</h2></div>
-      <p className="section-updated">updated June 02, 2026</p>
+      <p className="section-updated">updated {PERSONAL.updated}</p>
       <p className="personal-text measure">
         I&rsquo;m still thinking back to our trip to Japan last year&hellip; I&rsquo;ve been
         learning the language for a bit now and hope to go back in November, this time as a
@@ -212,19 +213,9 @@ export function Projects() {
     <section className="section" aria-labelledby="projects-heading">
       <div className="section-head"><h2 id="projects-heading" className="kick">Projects</h2></div>
       <RowList>
-        <ProjRow
-          title="Elterngeld Kompass (🇩🇪 + Invite only)"
-          desc="Financial insights for becoming parents."
-          href="https://elterngeld-kompass.de" />
-        <ProjRow
-          title="siteboard"
-          desc="Website-analysis platform for SEO, performance, accessibility & security"
-          href="https://siteboard.io/en" />
-        <ProjRow
-          title="Composables"
-          desc="Signal-based composable functions for Angular"
-          meta="GitHub"
-          href="https://github.com/homj/angular-extensions/tree/main/libs/composables" />
+        {PROJECTS.map(p => (
+          <ProjRow key={p.href} title={p.title} desc={p.desc} meta={p.meta} href={p.href} />
+        ))}
       </RowList>
     </section>
   );
@@ -240,54 +231,12 @@ export function Experience() {
     <section className="section" aria-labelledby="experience-heading">
       <div className="section-head"><h2 id="experience-heading" className="kick">Experience</h2></div>
       <RowList>
-        <ExpRow role="Product engineer" co="Freelance" meta="2026 - now"
-          open={openIdx === 0} onToggle={() => toggle(0)}>
-          <p>
-            Senior engineering across several concurrent client projects. Lately a mail
-            client and offer wizard for a B2B parcel-delivery company&rsquo;s CRM, and a
-            custom web component for distributing construction-material catalogs to dealer
-            networks. I pair hands-on engineering with architecture and product feedback.
-          </p>
-        </ExpRow>
-
-        <ExpRow role="CTO &amp; co-founder" co="siteboard" meta="2025"
-          open={openIdx === 1} onToggle={() => toggle(1)}>
-          <p>
-            Spun an internal bynary tool out into a standalone SaaS, and came along as
-            co-founder and CTO with the ten-person team. A website-analysis platform for
-            SEO, performance, accessibility, security, and best practices - 10M+ audits
-            across 2,000+ sites. I owned the full lifecycle and joined sales calls as
-            technical lead.
-          </p>
-        </ExpRow>
-
-        <ExpRow role="CEO &amp; co-founder" co="bynary" meta="2016 - 2025"
-          open={openIdx === 2} onToggle={() => toggle(2)}>
-          <p>
-            Co-founded and ran a development agency for ten years, growing it to ten
-            people. Shipped 100+ projects across adtech, healthcare, biotech, fintech,
-            e-commerce, and travel. I led the web-app division and owned customer
-            relationships end to end.
-          </p>
-        </ExpRow>
-
-        <ExpRow role="Owner" co="twoid" meta="2012 - 2016"
-          open={openIdx === 3} onToggle={() => toggle(3)}>
-          <p>
-            A side business while studying. Built native Android apps for local and
-            international clients, and ran usability tests to validate UX changes and
-            inform future work.
-          </p>
-        </ExpRow>
-
-        <ExpRow role="Working student, QA" co="Infineon" meta="2012 - 2013"
-          open={openIdx === 4} onToggle={() => toggle(4)}>
-          <p>
-            Supported the QA team handling supplier audits through data analysis, fault
-            documentation, and reporting. Built VBA automations in Excel to replace
-            repetitive data handling, and worked with SAP for reporting.
-          </p>
-        </ExpRow>
+        {EXPERIENCE.map((e, i) => (
+          <ExpRow key={`${e.co}-${e.meta}`} role={e.role} co={e.co} meta={e.meta}
+            open={openIdx === i} onToggle={() => toggle(i)}>
+            <p>{e.summary}</p>
+          </ExpRow>
+        ))}
       </RowList>
     </section>
   );
@@ -404,7 +353,8 @@ export function Contact() {
   };
 
   return (
-    <section className="section contact">
+    <section className="section contact" aria-labelledby="contact-heading">
+      <h2 id="contact-heading" className="sr-only">Contact</h2>
       <div className="measure">
         {sent ? (
           <p className="contact-done">Thanks - your note is on its way.</p>
