@@ -179,7 +179,9 @@ export function RowList({ children }: RowListProps) {
   const hlRef    = React.useRef<HTMLDivElement>(null);
   const curRef   = React.useRef<HTMLElement | null>(null);
 
-  const move = (e: React.MouseEvent) => {
+  // Bound to both onMouseOver and onFocus, so it takes the common base type.
+  // Only e.target is read, which SyntheticEvent already provides.
+  const move = (e: React.SyntheticEvent) => {
     const hit = (e.target as HTMLElement).closest('.exp, .rrow') as HTMLElement | null;
     if (!hit || !ref.current || !ref.current.contains(hit)) return;
     const item = (hit.closest('.exp') as HTMLElement | null) || hit;
