@@ -127,7 +127,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   const hasDb = !!dbUrl();
   if (!hasDb && !resendKey) {
     return fail('not_configured', 'Contact is not configured.',
-      'The server is missing its delivery credentials. Email hello@johanneshomeier.com directly.', 500);
+      'The server is missing its delivery credentials. Email hello@johanneshomeier.com directly.', 500,
+      rateHeaders(limit));
   }
 
   let note = '';
@@ -140,20 +141,22 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     captchaResponse = typeof body?.frcCaptchaResponse === 'string' ? body.frcCaptchaResponse : '';
   } catch {
     return fail('invalid_body', 'Invalid request body.',
-      'Send a JSON object with a `note` string. See https://johanneshomeier.com/openapi.json.', 400);
+      'Send a JSON object with a `note` string. See https://johanneshomeier.com/openapi.json.', 400,
+      rateHeaders(limit));
   }
 
   if (!note) {
     return fail('note_empty', 'Note cannot be empty.',
-      'Provide a non-empty `note` string.', 400);
+      'Provide a non-empty `note` string.', 400, rateHeaders(limit));
   }
   if (note.length > MAX_LEN) {
     return fail('note_too_long', 'Note is too long.',
-      `Keep \`note\` to ${MAX_LEN} characters or fewer.`, 400);
+      `Keep \`note\` to ${MAX_LEN} characters or fewer.`, 400, rateHeaders(limit));
   }
   if (email && (email.length > EMAIL_MAX || !EMAIL_RE.test(email))) {
     return fail('email_invalid', 'That email address looks invalid.',
-      'Send a valid address in `email`, or omit the field to stay anonymous.', 400);
+      'Send a valid address in `email`, or omit the field to stay anonymous.', 400,
+      rateHeaders(limit));
   }
 
   // Bot prevention via Friendly Captcha. Only enforced when an API key is
@@ -167,11 +170,13 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     }
     if (!captchaResponse) {
       return fail('captcha_required', 'Captcha verification is required.',
-        'Solve the Friendly Captcha widget and send its token as `frcCaptchaResponse`.', 400);
+        'Solve the Friendly Captcha widget and send its token as `frcCaptchaResponse`.', 400,
+        rateHeaders(limit));
     }
     if (!(await verifyCaptcha(frcApiKey, captchaResponse))) {
       return fail('captcha_failed', 'Captcha verification failed. Please try again.',
-        'Request a fresh captcha token and retry; tokens are single-use and expire.', 400);
+        'Request a fresh captcha token and retry; tokens are single-use and expire.', 400,
+        rateHeaders(limit));
     }
   }
 
@@ -184,7 +189,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
   if (!stored && !emailed) {
     return fail('delivery_failed', 'Could not save your note. Please try again.',
-      'Both delivery sinks failed. This is retryable - try again shortly.', 502);
+      'Both delivery sinks failed. This is retryable - try again shortly.', 502,
+      rateHeaders(limit));
   }
 
   return new Response(JSON.stringify({ ok: true }), {

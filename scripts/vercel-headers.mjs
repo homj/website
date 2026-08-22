@@ -61,9 +61,16 @@ const routes = [
   {
     // Header routes match the requested path, not the rewritten one, so `/`
     // needs its own content-type rule - the rewrite below leaves the URL as `/`.
+    // The CORS header has to be repeated here too: MACHINE_READABLE above does
+    // not match `/`, and without it a browser-based agent fetching `/` with
+    // `Accept: text/markdown` from another origin gets the body but is blocked
+    // from reading it - the one case this negotiation exists for.
     src: '^/$',
     has: [{ type: 'header', key: 'accept', value: '.*text/markdown.*' }],
-    headers: { 'content-type': 'text/markdown; charset=utf-8' },
+    headers: {
+      'content-type': 'text/markdown; charset=utf-8',
+      'access-control-allow-origin': '*',
+    },
     continue: true,
   },
   {

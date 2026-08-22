@@ -19,8 +19,8 @@ const DESCRIPTION =
         <h1>API reference</h1>
         <p>
           This site exposes exactly one endpoint: a way to send a message without
-          driving the browser form. It is unauthenticated and free to use. The machine
-          -readable description lives at <a href="/openapi.json">/openapi.json</a>
+          driving the browser form. It is unauthenticated and free to use. The
+          machine-readable description lives at <a href="/openapi.json">/openapi.json</a>
           (OpenAPI 3.1); everything below restates it for humans.
         </p>
 
@@ -54,7 +54,7 @@ Content-Type: application/json
 
         <h2>Rate limits</h2>
         <p>
-          Ten requests per hour. Every response carries
+          Ten requests per hour. Every response to <code>POST /api/contact</code> carries
           <code>RateLimit-Limit</code>, <code>RateLimit-Remaining</code>,
           <code>RateLimit-Reset</code> and <code>RateLimit-Policy</code>; a
           <code>429</code> adds <code>Retry-After</code>. The limit is enforced per
@@ -112,7 +112,7 @@ Content-Type: application/json
   .legal h1 { font-size: 1.375rem; }
   .legal h2 { font-size: var(--text-md); margin-top: var(--space-7); }
   .legal pre {
-    background: var(--bg-sunk, rgba(0,0,0,.04));
+    background: var(--bg-subtle);
     padding: var(--space-4);
     border-radius: 6px;
     overflow-x: auto;
@@ -120,5 +120,5 @@ Content-Type: application/json
     line-height: 1.5;
   }
   .legal table { width: 100%; border-collapse: collapse; margin: var(--space-5) 0; font-size: 0.9em; }
-  .legal th, .legal td { text-align: left; padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--line, rgba(0,0,0,.1)); vertical-align: top; }
+  .legal th, .legal td { text-align: left; padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--border); vertical-align: top; }
 </style>

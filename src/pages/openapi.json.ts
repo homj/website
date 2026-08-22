@@ -7,6 +7,17 @@ import { SITE } from '../data/seo';
 const NOTE_MAX = 5000;
 const EMAIL_MAX = 254;
 
+// Both paths below are served by the same handler (src/pages/api/v1/contact.ts
+// re-exports it), so they must advertise the same responses - listing them once
+// is what keeps the two entries from drifting apart.
+const NOTE_RESPONSES = {
+  '200': { $ref: '#/components/responses/Accepted' },
+  '400': { $ref: '#/components/responses/BadRequest' },
+  '429': { $ref: '#/components/responses/RateLimited' },
+  '500': { $ref: '#/components/responses/NotConfigured' },
+  '502': { $ref: '#/components/responses/DeliveryFailed' },
+};
+
 const spec = {
   openapi: '3.1.0',
   info: {
@@ -65,35 +76,7 @@ const spec = {
             },
           },
         },
-        responses: {
-          '200': {
-            description: 'The note was stored, emailed, or both.',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/NoteAccepted' },
-              },
-            },
-          },
-          '400': {
-            description:
-              'The body was not valid JSON, the note was empty or longer than 5000 characters, the email address was malformed, or captcha verification failed.',
-            content: {
-              'application/json': { schema: { $ref: '#/components/schemas/Error' } },
-            },
-          },
-          '500': {
-            description: 'Contact delivery is not configured on the server.',
-            content: {
-              'application/json': { schema: { $ref: '#/components/schemas/Error' } },
-            },
-          },
-          '502': {
-            description: 'Both delivery sinks failed; the note was not saved. Safe to retry.',
-            content: {
-              'application/json': { schema: { $ref: '#/components/schemas/Error' } },
-            },
-          },
-        },
+        responses: NOTE_RESPONSES,
       },
     },
     '/api/v1/contact': {
@@ -109,28 +92,32 @@ const spec = {
             'application/json': { schema: { $ref: '#/components/schemas/NoteRequest' } },
           },
         },
-        responses: {
-          '200': {
-            description: 'The note was stored, emailed, or both.',
-            content: {
-              'application/json': { schema: { $ref: '#/components/schemas/NoteAccepted' } },
-            },
-          },
-          '400': { $ref: '#/components/responses/BadRequest' },
-          '429': { $ref: '#/components/responses/RateLimited' },
-        },
+        responses: NOTE_RESPONSES,
       },
     },
   },
   components: {
     responses: {
+      Accepted: {
+        description: 'The note was stored, emailed, or both.',
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/NoteAccepted' } } },
+      },
       BadRequest: {
-        description: 'The request was rejected. See `code` for the specific reason.',
+        description:
+          'The body was not valid JSON, the note was empty or longer than 5000 characters, the email address was malformed, or captcha verification failed. See `code` for the specific reason.',
         content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
       },
       RateLimited: {
         description:
           'Rate limit exceeded. `Retry-After` and the RateLimit headers say when to try again.',
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
+      },
+      NotConfigured: {
+        description: 'Contact delivery is not configured on the server.',
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
+      },
+      DeliveryFailed: {
+        description: 'Both delivery sinks failed; the note was not saved. Safe to retry.',
         content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
       },
     },
