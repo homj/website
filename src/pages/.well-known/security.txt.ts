@@ -2,8 +2,13 @@ import type { APIRoute } from 'astro';
 import { CONTROLLER } from '../../data/legal';
 import { SITE } from '../../data/seo';
 
-// RFC 9116. Generated at build time so `Expires` is always a fresh date ahead
-// of now - a security.txt whose Expires has passed is treated as invalid.
+// RFC 9116. A security.txt whose `Expires` has passed is treated as invalid, and
+// RFC 9116 asks for less than a year out - which a build-time date cannot hold on
+// a site that may sit undeployed for longer than it. So this one route opts out
+// of prerendering and dates itself per request; it stays a year ahead for as long
+// as the deployment lives, without needing a redeploy to stay valid.
+export const prerender = false;
+
 export const GET: APIRoute = () => {
   const expires = new Date();
   expires.setUTCFullYear(expires.getUTCFullYear() + 1);

@@ -7,6 +7,10 @@
 //
 // Every route uses `continue: true` so it only decorates the response and lets
 // the filesystem handler still serve the file.
+//
+// This runs from the `build` script, so vercel.json pins `buildCommand` to it -
+// a build command configured in the Vercel dashboard would otherwise take over
+// and run `astro build` alone, dropping every header below without a trace.
 
 import { readFile, writeFile } from 'node:fs/promises';
 
@@ -49,9 +53,17 @@ const routes = [
 const config = JSON.parse(await readFile(CONFIG, 'utf8'));
 
 // Header routes must precede the filesystem handler to apply to static files.
+// Without it there is nowhere safe to put them: the adapter's route list ends in
+// a terminal `/.*` -> /404.html catch-all, so appending would park every header
+// behind a route that always matches first, and the build would still look green.
 const fsIndex = config.routes.findIndex(r => r.handle === 'filesystem');
-const at = fsIndex === -1 ? config.routes.length : fsIndex;
-config.routes.splice(at, 0, ...routes);
+if (fsIndex === -1) {
+  throw new Error(
+    `${CONFIG} has no \`handle: "filesystem"\` route - the adapter's output shape changed. `
+    + 'Refusing to write header routes that could never match; update this script.',
+  );
+}
+config.routes.splice(fsIndex, 0, ...routes);
 
 await writeFile(CONFIG, JSON.stringify(config, null, '\t'));
-console.log(`vercel-headers: inserted ${routes.length} header routes at index ${at}`);
+console.log(`vercel-headers: inserted ${routes.length} header routes at index ${fsIndex}`);

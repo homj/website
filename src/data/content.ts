@@ -90,6 +90,14 @@ export const EXPERIENCE: Role[] = [
   },
 ];
 
+/**
+ * Date of the last edit to anything on the home page other than the Personal
+ * note - PROJECTS, EXPERIENCE or INTRO. Bump it whenever you touch one of them.
+ * The home page's <lastmod> is the later of this and `PERSONAL.updatedISO`, so a
+ * new project moves the date even though the Personal note did not change.
+ */
+export const CONTENT_UPDATED_ISO = '2026-08-02';
+
 /** Plain-text mirror of the intro paragraphs rendered in sections.tsx. */
 export const INTRO: string[] = [
   'Hey, I’m Johannes - a product engineer and tech lead based in Regensburg, Germany. I’ve spent the last 13 years building software, shaping interfaces, and leading small teams.',
@@ -106,5 +114,6 @@ export const PERSONAL = {
     'I’m still thinking back to our trip to Japan last year… I’ve been learning the language for a bit now and hope to go back in November, this time as a family.',
     'In the same spirit, my sister recently gifted me Der Japanische Garten (https://www.scorpio-verlag.de/Buecher/579/DerJapanischeGarten.html), a quiet story about ikigai. It’s good to be reading again, even if it’s just a small book.',
     'And between all of it, I finally made Broccoli Casserole again this week! One of my partner’s favorites.',
+    '(I don’t want to brag, but it slapped)',
   ],
 };

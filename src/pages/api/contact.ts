@@ -21,6 +21,19 @@ const EMAIL_RE = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 const FRC_VERIFY_URL = 'https://global.frcapi.com/api/v2/captcha/siteverify';
 const DEFAULT_FROM = 'Johannes Homeier <no-reply@johanneshomeier.com>';
 
+// /openapi.json is served cross-origin readable and advertises this endpoint, so
+// an agent can discover it from another origin. Without these the browser blocks
+// the call it just learned how to make: a JSON body makes the POST non-simple, so
+// it is preflighted, and the preflight needs its own answer (see OPTIONS below).
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Max-Age': '86400',
+};
+
+export const OPTIONS: APIRoute = () => new Response(null, { status: 204, headers: CORS });
+
 // Strip control characters that would break Postgres text storage (NUL bytes
 // are rejected outright) or leak into email headers. The note keeps tabs and
 // newlines; an address keeps neither. Also trims surrounding whitespace.
@@ -178,6 +191,6 @@ async function verifyCaptcha(apiKey: string, response: string): Promise<boolean>
 function json(data: unknown, status: number): Response {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...CORS },
   });
 }
