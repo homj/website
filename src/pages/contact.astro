@@ -1,0 +1,91 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import Email from '../components/Email.astro';
+import { CONTROLLER } from '../data/legal';
+import { subPageJsonLd } from '../data/seo';
+
+const DESCRIPTION =
+  'How to reach Johannes Homeier: email, the note form on the home page, or the public contact API documented in openapi.json.';
+---
+
+<Layout title="Contact - Johannes Homeier" description={DESCRIPTION}
+  jsonLd={subPageJsonLd('/contact/', 'Contact', DESCRIPTION, 'ContactPage')}>
+  <div class="site">
+    <Nav />
+    <main>
+      <article class="page wrap detail legal">
+        <a class="backlink" href="/">Back</a>
+
+        <h1>Contact</h1>
+
+        <p>
+          I&rsquo;m open to freelance product engineering, technical leadership and
+          architecture work, and happy to answer a question even if it doesn&rsquo;t turn
+          into a project. I reply to most things within a couple of working days.
+        </p>
+
+        <h2>Email</h2>
+        <p>
+          The most direct route: <Email />. Write in English or German &mdash; both are
+          fine. If you&rsquo;re describing a project, a couple of sentences about the
+          problem and the timeline is plenty to start with.
+        </p>
+
+        <h2>Leave a note</h2>
+        <p>
+          There&rsquo;s a short form at the bottom of the
+          <a href="/#contact-heading">home page</a>. It takes a message and, optionally,
+          an address to reply to &mdash; you can leave it out and stay anonymous, though
+          then I have no way of answering.
+        </p>
+
+        <h2>For agents and scripts</h2>
+        <p>
+          The same form is backed by a public endpoint, so an automated caller
+          doesn&rsquo;t have to drive a browser:
+        </p>
+        <pre><code>POST https://johanneshomeier.com/api/contact
+Content-Type: application/json
+
+&#123; "note": "your message", "email": "you@example.com" &#125;</code></pre>
+        <p>
+          It is described in full at <a href="/openapi.json">/openapi.json</a> &mdash;
+          request schema, error codes and rate limits. Errors come back as JSON with a
+          stable <code>code</code> and a <code>resolution</code> hint. Requests are limited
+          to ten per hour, and the response carries standard <code>RateLimit</code> headers
+          so a client can pace itself.
+        </p>
+
+        <h2>Where I am</h2>
+        <p>
+          {CONTROLLER.city}, {CONTROLLER.country} &mdash; Central European Time. I work
+          with clients across Europe and remotely further afield. The full postal address
+          and VAT identification number are on the <a href="/imprint/">imprint</a>, and
+          how I handle your data is set out in the <a href="/privacy/">privacy policy</a>.
+        </p>
+
+        <h2>Security</h2>
+        <p>
+          To report a vulnerability, see
+          <a href="/.well-known/security.txt">/.well-known/security.txt</a>.
+        </p>
+      </article>
+    </main>
+    <Footer />
+  </div>
+</Layout>
+
+<style>
+  .legal h1 { font-size: 1.375rem; }
+  .legal h2 { font-size: var(--text-md); margin-top: var(--space-7); }
+  .legal pre {
+    background: var(--bg-subtle);
+    padding: var(--space-4);
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 0.85em;
+    line-height: 1.5;
+  }
+</style>

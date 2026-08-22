@@ -98,6 +98,19 @@ export const EXPERIENCE: Role[] = [
  */
 export const CONTENT_UPDATED_ISO = '2026-08-02';
 
+/**
+ * Last edit to each standalone page, tracked separately from the home page's
+ * date. Sharing CONTENT_UPDATED_ISO with them would move their <lastmod> every
+ * time a project or role changed, and would leave it frozen when the page's own
+ * prose was edited - both of which teach a crawler to distrust the sitemap.
+ * Bump the entry for a page when you edit that page.
+ */
+export const PAGE_UPDATED_ISO = {
+  '/about/': '2026-08-22',
+  '/contact/': '2026-08-22',
+  '/docs/': '2026-08-22',
+} as const;
+
 /** Plain-text mirror of the intro paragraphs rendered in sections.tsx. */
 export const INTRO: string[] = [
   'Hey, I’m Johannes - a product engineer and tech lead based in Regensburg, Germany. I’ve spent the last 13 years building software, shaping interfaces, and leading small teams.',

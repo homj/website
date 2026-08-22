@@ -1,0 +1,43 @@
+name: CI
+
+# Nothing verified this repo before: a type error sat on main undetected until a
+# manual `tsc` found it. These are the same three commands a contributor runs
+# locally, in the same order.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - run: npm ci
+
+      # Generates .astro/types.d.ts, which src/env.d.ts references and which is
+      # gitignored - so a fresh checkout has no types for `import.meta.env` and
+      # the type check below fails without this. A local tree usually has it
+      # already from an earlier build, which is exactly how the gap hid.
+      - name: Sync Astro types
+        run: npx astro sync
+
+      # Type-check the whole tree, including .astro frontmatter.
+      - name: Type check
+        run: npx tsc --noEmit -p tsconfig.json
+
+      # Also runs scripts/vercel-headers.mjs, which throws rather than writing
+      # header routes that could never match.
+      - name: Build
+        run: npm run build
+
+      # Asserts the Accept negotiation and 404 routing against the config the
+      # build just generated. Order-dependent and otherwise fails silently.
+      - name: Verify route table
+        run: npm run verify
