@@ -59,6 +59,21 @@ function rateLimit(ip: string): { allowed: boolean; remaining: number; reset: nu
   return { allowed: true, remaining: RATE_LIMIT - times.length, reset };
 }
 
+/**
+ * Current standing without consuming budget. Used for responses that perform no
+ * work (a preflight, a wrong-method rejection) so a caller - or a scanner - can
+ * still read its position, and so probing cannot burn a real caller's quota.
+ */
+function ratePeek(ip: string): { remaining: number; reset: number } {
+  const now = Date.now();
+  const times = (hits.get(ip) ?? []).filter(t => t > now - RATE_WINDOW_MS);
+  const oldest = times[0] ?? now;
+  return {
+    remaining: Math.max(0, RATE_LIMIT - times.length),
+    reset: Math.max(1, Math.ceil((oldest + RATE_WINDOW_MS - now) / 1000)),
+  };
+}
+
 function rateHeaders(r: { remaining: number; reset: number }): Record<string, string> {
   return {
     'RateLimit-Limit': String(RATE_LIMIT),
@@ -77,18 +92,22 @@ const CORS = {
     'RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset, RateLimit-Policy, Retry-After',
 };
 
-export const OPTIONS: APIRoute = () => new Response(null, { status: 204, headers: CORS });
+export const OPTIONS: APIRoute = ({ clientAddress }) =>
+  new Response(null, {
+    status: 204,
+    headers: { ...CORS, ...rateHeaders(ratePeek(clientAddress ?? 'unknown')) },
+  });
 
 // Any method other than POST/OPTIONS. Answered in JSON rather than letting the
 // framework return an HTML page: a caller that reached this endpoint is doing so
 // programmatically, and an HTML error is not something it can act on.
-export const ALL: APIRoute = ({ request }) =>
+export const ALL: APIRoute = ({ request, clientAddress }) =>
   fail(
     'method_not_allowed',
     `${request.method} is not supported on this endpoint.`,
     'Use POST with a JSON body. See https://johanneshomeier.com/openapi.json.',
     405,
-    { Allow: 'POST, OPTIONS' },
+    { Allow: 'POST, OPTIONS', ...rateHeaders(ratePeek(clientAddress ?? 'unknown')) },
   );
 
 // Strip control characters that would break Postgres text storage (NUL bytes

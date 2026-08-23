@@ -10,12 +10,73 @@ const EMAIL_MAX = 254;
 // Both paths below are served by the same handler (src/pages/api/v1/contact.ts
 // re-exports it), so they must advertise the same responses - listing them once
 // is what keeps the two entries from drifting apart.
+//
+// These are expanded inline into each operation rather than $ref'd from
+// components/responses. A response-level $ref is valid OpenAPI, but many
+// consumers only dereference schema-level $refs, and to those an operation
+// whose responses are all `$ref` looks like it declares no typed responses at
+// all. Schemas stay shared in components/schemas, which is dereferenced
+// everywhere.
+
+const ERROR_SCHEMA = { $ref: '#/components/schemas/Error' };
+
+/** RateLimit headers, emitted on every response from this endpoint. */
+const RATE_LIMIT_HEADERS = {
+  'RateLimit-Limit': {
+    description: 'Requests permitted in the current window.',
+    schema: { type: 'integer', example: 10 },
+  },
+  'RateLimit-Remaining': {
+    description: 'Requests still available in the current window.',
+    schema: { type: 'integer', example: 9 },
+  },
+  'RateLimit-Reset': {
+    description: 'Seconds until the current window resets.',
+    schema: { type: 'integer', example: 3600 },
+  },
+  'RateLimit-Policy': {
+    description: 'The policy in force, as `<limit>;w=<window-seconds>`.',
+    schema: { type: 'string', example: '10;w=3600' },
+  },
+};
+
+type OpenApiObject = Record<string, unknown>;
+
+function jsonResponse(
+  description: string,
+  schema: OpenApiObject,
+  extraHeaders: OpenApiObject = {},
+) {
+  return {
+    description,
+    headers: { ...RATE_LIMIT_HEADERS, ...extraHeaders },
+    content: { 'application/json': { schema } },
+  };
+}
+
 const NOTE_RESPONSES = {
-  '200': { $ref: '#/components/responses/Accepted' },
-  '400': { $ref: '#/components/responses/BadRequest' },
-  '429': { $ref: '#/components/responses/RateLimited' },
-  '500': { $ref: '#/components/responses/NotConfigured' },
-  '502': { $ref: '#/components/responses/DeliveryFailed' },
+  '200': jsonResponse('The note was stored, emailed, or both.', {
+    $ref: '#/components/schemas/NoteAccepted',
+  }),
+  '400': jsonResponse(
+    'The body was not valid JSON, the note was empty or longer than 5000 characters, the email address was malformed, or captcha verification failed. See `code` for the specific reason.',
+    ERROR_SCHEMA,
+  ),
+  '429': jsonResponse(
+    'Rate limit exceeded. `Retry-After` and the RateLimit headers say when to try again.',
+    ERROR_SCHEMA,
+    {
+      'Retry-After': {
+        description: 'Seconds to wait before retrying.',
+        schema: { type: 'integer', example: 3600 },
+      },
+    },
+  ),
+  '500': jsonResponse('Contact delivery is not configured on the server.', ERROR_SCHEMA),
+  '502': jsonResponse(
+    'Both delivery sinks failed; the note was not saved. Safe to retry.',
+    ERROR_SCHEMA,
+  ),
 };
 
 const spec = {
@@ -97,30 +158,6 @@ const spec = {
     },
   },
   components: {
-    responses: {
-      Accepted: {
-        description: 'The note was stored, emailed, or both.',
-        content: { 'application/json': { schema: { $ref: '#/components/schemas/NoteAccepted' } } },
-      },
-      BadRequest: {
-        description:
-          'The body was not valid JSON, the note was empty or longer than 5000 characters, the email address was malformed, or captcha verification failed. See `code` for the specific reason.',
-        content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
-      },
-      RateLimited: {
-        description:
-          'Rate limit exceeded. `Retry-After` and the RateLimit headers say when to try again.',
-        content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
-      },
-      NotConfigured: {
-        description: 'Contact delivery is not configured on the server.',
-        content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
-      },
-      DeliveryFailed: {
-        description: 'Both delivery sinks failed; the note was not saved. Safe to retry.',
-        content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } },
-      },
-    },
     schemas: {
       NoteRequest: {
         type: 'object',
