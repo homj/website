@@ -21,6 +21,12 @@ export const PROJECTS: Project[] = [
     href: 'https://elterngeld-kompass.de',
   },
   {
+    title: 'Doodle Heads',
+    desc: 'A doodled face for every three-word code, spun out of Elterngeld Kompass',
+    meta: 'Experiment',
+    href: 'https://kritzel.johanneshomeier.com',
+  },
+  {
     title: 'siteboard',
     desc: 'Website-analysis platform for SEO, performance, accessibility & security',
     href: 'https://siteboard.io/en',
@@ -96,7 +102,7 @@ export const EXPERIENCE: Role[] = [
  * The home page's <lastmod> is the later of this and `PERSONAL.updatedISO`, so a
  * new project moves the date even though the Personal note did not change.
  */
-export const CONTENT_UPDATED_ISO = '2026-08-02';
+export const CONTENT_UPDATED_ISO = '2026-08-27';
 
 /**
  * Last edit to each standalone page, tracked separately from the home page's
