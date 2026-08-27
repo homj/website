@@ -21,9 +21,8 @@ export const PROJECTS: Project[] = [
     href: 'https://elterngeld-kompass.de',
   },
   {
-    title: 'Doodle Heads',
-    desc: 'A doodled face for every three-word code, spun out of Elterngeld Kompass',
-    meta: 'Experiment',
+    title: 'Kritzel',
+    desc: 'Procedurally generated doodle heads. Built for Elterngeld Kompass.',
     href: 'https://kritzel.johanneshomeier.com',
   },
   {
@@ -34,7 +33,6 @@ export const PROJECTS: Project[] = [
   {
     title: 'Composables',
     desc: 'Signal-based composable functions for Angular',
-    meta: 'GitHub',
     href: 'https://github.com/homj/angular-extensions/tree/main/libs/composables',
   },
 ];
